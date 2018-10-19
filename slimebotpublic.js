@@ -45,7 +45,7 @@ const nightExpo = new CronJob({
 })
 
 bot.on('guildMemberAdd', member => {
-    member.send(`Hi there, welcome to our discord! \n\n Please change your nickname to your in-game IGN. \n\n Thank you!`); 
+    member.send(`Hi there, welcome to our discord! \n\n Please change your nickname to your in-game IGN. \n\n Type !help for my list of commands! \n \n Thank you!`); 
 });
 
 // message when bot is online
@@ -53,7 +53,7 @@ bot.on('ready', () => {
     console.log('I am ready!');
   });
 
-  const numberWithCommas = (x) => {
+const numberWithCommas = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 
@@ -191,6 +191,28 @@ bot.on('message', message => {
         else {
            message.reply(`Please enter !fuse help`);
         }
+    }
+    
+    // bot help
+    if (command === 'help') {
+        message.reply({embed: {
+            color: 3447003,
+            author: {
+              name: bot.user.username,
+              icon_url: bot.user.avatarURL
+            },
+            fields: [{
+                name: "**__Here are a list of my commands!__**",
+                value: "**!fuse** : help with fusing costs"
+              }
+            ],
+            timestamp: new Date(),
+            footer: {
+              icon_url: bot.user.avatarURL,
+              text: "Slime Bot"
+            }
+          }
+        });
     }
 })
 

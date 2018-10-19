@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "cron": "^1.4.1",
+    "cron-job-manager": "^2.1.1",
     "discord.js": "^11.4.2",
     "discord.js-commando": "^0.10.0",
     "node-schedule-tz": "^1.2.1-4"
