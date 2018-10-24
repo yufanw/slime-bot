@@ -4,6 +4,7 @@ const config = require('./config.json')
 const cron = require('node-cron');
 const Enmap = require('enmap');
 
+// enmap settings back-end
 bot.settings = new Enmap({
     name: "settings",
     fetchAll: true,
@@ -11,13 +12,22 @@ bot.settings = new Enmap({
     cloneLevel: 'deep'
   });
 
-  // Using async/await as an immediate function: 
+
+// message when bot is online
+bot.on('ready', () => {
+    console.log('I am ready!');
+});
+
+
+// when bot starts, logs how many keys are loaded from database.
 (async function() {
     await bot.settings.defer;
     console.log(bot.settings.size + " keys loaded");
-    // Ready to use!
+    
   }());
  
+
+// enmap settings front-end  
 const defaultSettings = {	
     prefix: "!",		
     adminRole: "Administrator",	
@@ -28,18 +38,18 @@ const defaultSettings = {
     expoMessage: "@everyone Expeditions are starting in 15 minutes! Good luck!",
     testChannel: "bot-testing",
     testMessage: "test"
-
 } 
 
+
+// delete settings when guild is deleted
 bot.on("guildDelete", guild => {
-    // Removing an element uses `delete(key)`
     bot.settings.delete(guild.id);
   });
   
 
 
-
-cron.schedule('00 45 12,20 * * *', () => {
+// scheduled message for expeditions
+const expoReminder = cron.schedule('00 45 12,20 * * *', () => {
 
     bot.guilds.forEach((guild) => {
 
@@ -53,33 +63,15 @@ cron.schedule('00 45 12,20 * * *', () => {
             .find(channel => channel.name === expoChannel)
             .send(expoMessage)
             .catch(console.error);
-  })
+    })
 },
-
-    // bot.guilds.forEach((guild) => {
-    //     guild.channels.forEach((channel) => {
-
-    //         if (channel.name === "general") {
-    //             channel.send('@everyone Expeditions are starting in 15 minutes! Good luck!')
-    //             return;
-    //         } 
-    //         else if (channel.name === "general-chat") {
-    //             channel.send('@everyone Expeditions are starting in 15 minutes! Good luck!')
-    //             return;
-    //         }
-    //         else if (channel.name === "main") {
-    //             channel.send('@everyone Expeditions are starting in 15 minutes! Good luck!')
-    //             return;
-    //         }
-    //     })
-    // })
 {
     scheduled: true,
     timeZone: "America/Los_Angeles"
-}
-);
+});
 
-    
+
+// welcome message to new guild member    
 bot.on('guildMemberAdd', member => {
     bot.settings.ensure(member.guild.id, defaultSettings);
 
@@ -96,15 +88,9 @@ bot.on('guildMemberAdd', member => {
     member
         .send(privateMessage)
         .catch(console.error);
-    
-    // member.send(`Hi there, welcome to our discord! \n\n Please change your nickname to your in-game IGN. \n\n Type !help for my list of commands! \n \n Thank you!`); 
 });
 
-// message when bot is online
-bot.on('ready', () => {
-    console.log('I am ready!');
-  });
-
+// function that inserts commas into numbers
 const numberWithCommas = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
@@ -120,9 +106,6 @@ bot.on('message', async (message) => {
 
     const args = message.content.split(/\s+/g);
     const command = args.shift().slice(guildConf.prefix.length).toLowerCase();
- 
-    // const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
-    // const command = args.shift().toLowerCase();
 
     const fusing = (numberOfMaterials, materialCost, upgradeCost) => {
         return numberWithCommas(Math.round((numberOfMaterials * Number(materialCost))+ upgradeCost))
@@ -210,7 +193,7 @@ bot.on('message', async (message) => {
         }
         //
 
-        // help
+        // fuse command help
         else if (fuseItem === 'help') {
             
             message.reply({embed: {
@@ -251,7 +234,7 @@ bot.on('message', async (message) => {
         }
     }
     
-    // bot help
+    // list bot commands
     if (command === 'help') {
         message.reply({embed: {
             color: 3447003,
@@ -273,6 +256,7 @@ bot.on('message', async (message) => {
         });
     }
 
+    // setting configurations command
     if(command === "setconf") {
         // Command is admin only, let's grab the admin value: 
         // const adminRole = message.guild.roles.find("name", guildConf.adminRole);
@@ -286,6 +270,8 @@ bot.on('message', async (message) => {
         // Let's get our key and value from the arguments. 
         // This is array destructuring, by the way. 
         const [prop, ...value] = args;
+
+        // configurations help
         if (prop === 'help') {
             return message.reply({embed: {
                 color: 3447003,
@@ -315,8 +301,9 @@ bot.on('message', async (message) => {
               }
             })
         }
+
         if(!bot.settings.has(message.guild.id, prop)) {
-          return message.reply("This key is not in the configuration. Type !showconf to see your current keys.");
+            return message.reply("This key is not in the configuration. Type !showconf to see your current keys.");
         }
         
         if (prop === undefined ) {
@@ -326,23 +313,25 @@ bot.on('message', async (message) => {
         bot.settings.set(message.guild.id, value.join(" "), prop);
         
         message.channel.send(`Guild configuration item ${prop} has been changed to:\n\`${value.join(" ")}\``);
-      }
+    }
 
-      if(command === "showconf") {
+    // shows current configuration
+    if(command === "showconf") {
         let configProps = Object.keys(guildConf).map(prop => {
           return `${prop}  :  ${guildConf[prop]}\n`;
         });
         message.channel.send(`The following are the server's current configuration:
         \`\`\`${configProps}\`\`\``);
-      }
+    }
 
-      if (command === "test") {
+    // bot testing command
+    if (command === "test") {
         let testMessage = bot.settings.get(message.guild.id, "testMessage");
         message.guild.channels
         .find(channel => channel.name === bot.settings.get(message.guild.id, "testChannel"))
         .send(testMessage)
         .catch(console.error);
-      } 
-})
+    } 
+});
 
 bot.login(config.token);
