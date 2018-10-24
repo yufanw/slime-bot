@@ -1,51 +1,103 @@
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 const config = require('./config.json')
-const CronJob = require('cron').CronJob;
+const cron = require('node-cron');
+const Enmap = require('enmap');
+
+bot.settings = new Enmap({
+    name: "settings",
+    fetchAll: true,
+    autoFetch: true,
+    cloneLevel: 'deep'
+  });
+
+  // Using async/await as an immediate function: 
+(async function() {
+    await bot.settings.defer;
+    console.log(bot.settings.size + " keys loaded");
+    // Ready to use!
+  }());
+ 
+const defaultSettings = {	
+    prefix: "!",		
+    adminRole: "Administrator",	
+    welcomeChannel: "welcome",	
+    welcomeMessage: "Say hello to {{user}}, everyone! We all need a warm welcome sometimes :D",
+    privateMessage: "Hi there, welcome to our discord! \n\n Please change your nickname to your in-game IGN. \n\n Type !help for my list of commands!",
+    expoChannel: "general",
+    expoMessage: "@everyone Expeditions are starting in 15 minutes! Good luck!",
+    testChannel: "bot-testing",
+    testMessage: "test"
+
+} 
+
+bot.on("guildDelete", guild => {
+    // Removing an element uses `delete(key)`
+    bot.settings.delete(guild.id);
+  });
+  
 
 
-const dayExpo = new CronJob({
-        cronTime: '00 45 12 * * 1-7',
-        onTick: function() {
-            bot.guilds.forEach((guild) => {
-            let defaultChannel = "";
+
+cron.schedule('00 45 12,20 * * *', () => {
+
+    bot.guilds.forEach((guild) => {
+
+        bot.settings.ensure(guild.id, defaultSettings);
+
+        let expoChannel = bot.settings.get(guild.id, "expoChannel");
             
-            guild.channels.forEach((channel) => {
-               if(channel.type == "text" && defaultChannel == "") {
-               if(channel.permissionsFor(guild.me).has("SEND_MESSAGES")) {
-                   defaultChannel = channel;
-               }
-               }
-         })
-            defaultChannel.send('@Everyone, expeditions are starting in 15 minutes!');
-        })
-        },
-        start: true,
-        timeZone: 'America/Los_Angeles'
-})
+        let expoMessage = bot.settings.get(guild.id, "expoMessage");
+            
+        guild.channels 
+            .find(channel => channel.name === expoChannel)
+            .send(expoMessage)
+            .catch(console.error);
+  })
+},
 
-const nightExpo = new CronJob({
-    cronTime: '00 45 18 * * 1-7',
-    onTick: function() {
-        bot.guilds.forEach((guild) => {
-        let defaultChannel = "";
-        
-        guild.channels.forEach((channel) => {
-           if(channel.type == "text" && defaultChannel == "") {
-           if(channel.permissionsFor(guild.me).has("SEND_MESSAGES")) {
-               defaultChannel = channel;
-           }
-           }
-     })
-        defaultChannel.send('@Everyone, expeditions are starting in 15 minutes! Good luck!');
-    })
-    },
-    start: true,
-    timeZone: 'America/Los_Angeles'
-})
+    // bot.guilds.forEach((guild) => {
+    //     guild.channels.forEach((channel) => {
 
+    //         if (channel.name === "general") {
+    //             channel.send('@everyone Expeditions are starting in 15 minutes! Good luck!')
+    //             return;
+    //         } 
+    //         else if (channel.name === "general-chat") {
+    //             channel.send('@everyone Expeditions are starting in 15 minutes! Good luck!')
+    //             return;
+    //         }
+    //         else if (channel.name === "main") {
+    //             channel.send('@everyone Expeditions are starting in 15 minutes! Good luck!')
+    //             return;
+    //         }
+    //     })
+    // })
+{
+    scheduled: true,
+    timeZone: "America/Los_Angeles"
+}
+);
+
+    
 bot.on('guildMemberAdd', member => {
-    member.send(`Hi there, welcome to our discord! \n\n Please change your nickname to your in-game IGN. \n\n Type !help for my list of commands! \n \n Thank you!`); 
+    bot.settings.ensure(member.guild.id, defaultSettings);
+
+    let welcomeMessage = bot.settings.get(member.guild.id, "welcomeMessage");
+    let privateMessage = bot.settings.get(member.guild.id, "privateMessage");
+
+    welcomeMessage = welcomeMessage.replace("{{user}}", member.user.tag)
+
+    member.guild.channels
+        .find(channel => channel.name === bot.settings.get(member.guild.id, "welcomeChannel"))
+        .send(welcomeMessage)
+        .catch(console.error);
+    
+    member
+        .send(privateMessage)
+        .catch(console.error);
+    
+    // member.send(`Hi there, welcome to our discord! \n\n Please change your nickname to your in-game IGN. \n\n Type !help for my list of commands! \n \n Thank you!`); 
 });
 
 // message when bot is online
@@ -57,26 +109,31 @@ const numberWithCommas = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 
-const fusing = (numberOfMaterials, materialCost, upgradeCost) => {
-    return numberWithCommas(Math.round((numberOfMaterials * Number(materialCost))+ upgradeCost))
-}
 
 // bot commmands
-bot.on('message', message => {
-    if (message.author.bot) return;
-    if (message.content.indexOf(config.prefix) !== 0) return;
- 
-    const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
-    const command = args.shift().toLowerCase();
+bot.on('message', async (message) => {
+    if (!message.guild || message.author.bot) return;
 
-    const botMessage = (typeOfMaterial, fuseMaterialCost, numberOfMaterials, materialCost, upgradeCost, fusingItem) => {
-        message.reply(`Using ${typeOfMaterial} at ${numberWithCommas(fuseMaterialCost)} each, it will cost you ${fusing(numberOfMaterials, materialCost, upgradeCost)} mesos to max a ${fusingItem}!`)
+    const guildConf = bot.settings.ensure(message.guild.id, defaultSettings);
+
+    if (message.content.indexOf(guildConf.prefix) !== 0) return;
+
+    const args = message.content.split(/\s+/g);
+    const command = args.shift().slice(guildConf.prefix.length).toLowerCase();
+ 
+    // const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
+    // const command = args.shift().toLowerCase();
+
+    const fusing = (numberOfMaterials, materialCost, upgradeCost) => {
+        return numberWithCommas(Math.round((numberOfMaterials * Number(materialCost))+ upgradeCost))
     }
- 
-
+    
     // fusing cost calculator
     if(command === 'fuse') {
 
+        const botMessage = (typeOfMaterial, fuseMaterialCost, numberOfMaterials, materialCost, upgradeCost, fusingItem) => {
+            message.reply(`Using ${typeOfMaterial} at ${numberWithCommas(fuseMaterialCost)} each, it will cost you ${fusing(numberOfMaterials, materialCost, upgradeCost)} mesos to max a ${fusingItem}!`)
+        }
         let [ fuseItem, fuseMaterial, fuseMaterialCost, ] = args;
 
         // weapons
@@ -155,6 +212,7 @@ bot.on('message', message => {
 
         // help
         else if (fuseItem === 'help') {
+            
             message.reply({embed: {
                 color: 3447003,
                 author: {
@@ -203,7 +261,7 @@ bot.on('message', message => {
             },
             fields: [{
                 name: "**__Here are a list of my commands!__**",
-                value: "**!fuse** : help with fusing costs"
+                value: "**!fuse** : help with fusing costs \n\n **!showconf** : show current configurations \n\n **!setconf** : edit configurations"
               }
             ],
             timestamp: new Date(),
@@ -214,6 +272,77 @@ bot.on('message', message => {
           }
         });
     }
+
+    if(command === "setconf") {
+        // Command is admin only, let's grab the admin value: 
+        // const adminRole = message.guild.roles.find("name", guildConf.adminRole);
+        // if(!adminRole) return message.reply("Administrator Role Not Found");
+        
+        // // Then we'll exit if the user is not admin
+        // if(!message.member.roles.has(adminRole.id)) {
+        //   return message.reply("You're not an admin, sorry!");
+        // }
+        
+        // Let's get our key and value from the arguments. 
+        // This is array destructuring, by the way. 
+        const [prop, ...value] = args;
+        if (prop === 'help') {
+            return message.reply({embed: {
+                color: 3447003,
+                author: {
+                  name: bot.user.username,
+                  icon_url: bot.user.avatarURL
+                },
+                title: 'Configuration Help',
+                description: 'This guide will teach you how to set up your own guild-specific configurations.',
+                fields: [{
+                    name: "**__Why do I need to set configs?__**",
+                    value: "Setting configurations is very important. It is how you can make me 'unique' to your guild. \n\n Every guild is different - they each have their own specific channels, they have their own specific banquet times, GMs want their own welcome/reminder messages, etc. \n\n By setting my configs, you can set me up however you like! "
+                  },
+                  {
+                      name: "**__Configuration Keys and Value__**",
+                      value: "There are 2 parts to my configurations: **keys and values**. \n\n The **key** is the type of configuration. \n\n Some examples of **keys** include \n 'WELCOME_MESSAGE', 'WELCOME_CHANNEL', EXPO_MESSAGE, EXPO_CHANNEL'. \n\n The **Value** is the value of that **key**, and it is what you will be changing. \n\n For example, the default **value** of the **key** 'WELCOME_CHANNEL' is set to 'welcome'. That means when a new guild member joins, a welcome message will be sent to the channel named 'welcome'. \n\n If you don't have a channel named 'welcome' and wanted to send the welcome messages to a channel called 'new-members', then you would change the **value** of WELCOME_CHANNEL to 'new-members'.  \n\n **Keys** cannot be changed \n\n If you type !showconf, it will show you your current **keys** and **values**"
+                  },{
+                    name: "**__Changing values of keys__**",
+                    value: "To start, type !setconf followed by the **key** and then the **value** you want. \n\n For example, if you wanted to change the value of **EXPO_CHANNEL** to **'Expedition-Reminders'**, simply type in **!setconf EXPO_CHANNEL Expedition-Reminders**. This will set my expedition reminder messages to send only to the channel **'Expedition-Reminders'**. \n\n "
+                  }
+                ],
+                timestamp: new Date(),
+                footer: {
+                  icon_url: bot.user.avatarURL,
+                  text: "Slime Bot"
+                }
+              }
+            })
+        }
+        if(!bot.settings.has(message.guild.id, prop)) {
+          return message.reply("This key is not in the configuration. Type !showconf to see your current keys.");
+        }
+        
+        if (prop === undefined ) {
+            return message.reply("You cannot enter a blank key. Type '!setconf help' for configuration help, or '!showconf' for your current configurations.");
+        }
+        
+        bot.settings.set(message.guild.id, value.join(" "), prop);
+        
+        message.channel.send(`Guild configuration item ${prop} has been changed to:\n\`${value.join(" ")}\``);
+      }
+
+      if(command === "showconf") {
+        let configProps = Object.keys(guildConf).map(prop => {
+          return `${prop}  :  ${guildConf[prop]}\n`;
+        });
+        message.channel.send(`The following are the server's current configuration:
+        \`\`\`${configProps}\`\`\``);
+      }
+
+      if (command === "test") {
+        let testMessage = bot.settings.get(message.guild.id, "testMessage");
+        message.guild.channels
+        .find(channel => channel.name === bot.settings.get(message.guild.id, "testChannel"))
+        .send(testMessage)
+        .catch(console.error);
+      } 
 })
 
 bot.login(config.token);
