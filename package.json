@@ -10,14 +10,9 @@
   "license": "ISC",
   "dependencies": {
     "better-sqlite-pool": "^0.1.2",
-    "cron": "^1.4.1",
-    "cron-job-manager": "^2.1.1",
     "discord.js": "^11.4.2",
-    "discord.js-commando": "^0.10.0",
     "enmap": "^4.3.3",
-    "long": "^4.0.0",
     "node-cron": "^2.0.3",
-    "node-schedule-tz": "^1.2.1-4",
     "sqlite": "^3.0.0"
   }
 }
