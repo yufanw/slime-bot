@@ -7,7 +7,7 @@
  - Utilizes Enmap for per-server configurations and node-cron/cron-job-manager for scheduled messages.
   
 
-# Functionalities:
+## Functionalities:
 
 - 15 minute reminders for afternoon and nighttime expeditions! Customize message and channel it sends to.
 
@@ -18,7 +18,7 @@
 - !fuse command to help with fusing - includes cost and data.
 
 
-# Commands: 
+## Commands: 
 
 - !fuse - helps with fusing costs.
 
@@ -29,3 +29,50 @@
 - !setconf - edit configurations (admin only)
 
 
+## Configuration Help:
+
+### Why do I need to set configs?
+ 
+- Every guild discord is different - they have their own specific channels, banquet times, GMs want their own welcome/reminder     messages, etc etc. \n\n By setting configs, you are able to edit all of these to your liking."
+
+### Configuration Keys and Value
+- There are 2 parts to my configurations: **keys and values**.
+
+- The **key** is the type of configuration. 
+
+- Some examples of **keys** include: 'welcomeMessage', 'welcomeChannel', 'expoMessage', & 'banquetTime'. 
+
+- The **value** is the value of that particular **key**, and it is what you will be changing. 
+
+- For example, the default **value** of the **key** 'expoChannel' is set to 'general'. This means that my expedition reminders will be -sent to the channel called 'general' by default. 
+
+- If you don't have a channel called 'general', or want me to send exped reminders to a different channel, let's say, 'expedition-reminders', you would change the **value** of expoChannel to 'expedition-reminders'."
+                  
+- Changing values of keys
+- To change the value of keys, type !setconf followed by the **key** and then the **value** you want.
+
+- For the example above, simply type **!setconf expoChannel expedition-reminders**. This will set my expedition reminder messages to send only to the channel **expedition-reminders**.
+
+- You can then type **!showconf** to view your changes. Simple enough, right?
+
+- If you're not getting reminders from me, there is probably an error in your configs (check spelling and/or letter casing). 
+
+- Now go edit your configs!
+                 
+### Keys and their functionalities
+
+- **welcomeChannel**: My welcome message will be sent to this channel. 
+
+- **welcomeMessage**: This message will be sent to the welcomeChannel when a new guild member joins the discord. Note that {{user}} will be replaced by the new guild member's username. 
+
+- **privateMessage**: I will send this private DM to new guild members. 
+
+- **expoChannel**: The channel I will send my expedition reminders to. 
+
+- **expoMessage**: This message will be sent to the expoChannel 15 minutes prior to expeditions. 
+
+- **banquetTime**: the time you want me to remind your guild about banquet. 
+
+- **banquetChannel**: the channel I will send the banquetMessage to. 
+
+- **banquetMessage**: the message I will send to banquetChannel.
