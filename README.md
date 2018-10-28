@@ -66,6 +66,8 @@
                  
 ### Keys and their functionalities
 
+- **adminRole** : name of admin role. Only people with this role can use !setconf.
+
 - **welcomeChannel**: My welcome message will be sent to this channel. 
 
 - **welcomeMessage**: This message will be sent to the welcomeChannel when a new guild member joins the discord. Note that {{user}} will be replaced by the new guild member's username. 
@@ -84,6 +86,8 @@
 
 ### Default Configurations
 
+- **adminRole** : GM <-- important: make sure to assign 'GM' role to yourself so you can use !setconf.
+  
 - **welcomeChannel** : welcome
 
 - **welcomeMessage** : Say hello to @{{user}}, everyone! We all need a warm welcome sometimes :D
