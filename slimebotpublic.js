@@ -3,6 +3,7 @@ const bot = new Discord.Client();
 const config = require('./config.json')
 const cron = require('node-cron');
 const Enmap = require('enmap');
+const cronJobManager = require('cron-job-manager');
 
 // enmap settings back-end
 bot.settings = new Enmap({
@@ -22,23 +23,20 @@ bot.on('ready', () => {
 // when bot starts, logs how many keys are loaded from database.
 (async function() {
     await bot.settings.defer;
-    console.log(bot.settings.size + " keys loaded");
+    console.log(bot.settings.size + " keys loaded")
     
   }());
  
 
 // enmap settings front-end  
-const defaultSettings = {	
-    prefix: "!",		
-    adminRole: "Administrator",	
+const defaultSettings = {		
+    adminRole: "GM",	
     welcomeChannel: "welcome",	
-    welcomeMessage: "Say hello to {{user}}, everyone! We all need a warm welcome sometimes :D",
+    welcomeMessage: "Say hello to @{{user}}, everyone! We all need a warm welcome sometimes :D",
     privateMessage: "Hi there, welcome to our discord! \n\n Please change your nickname to your in-game IGN. \n\n Type !help for my list of commands!",
     expoChannel: "general",
     expoMessage: "@everyone Expeditions are starting in 15 minutes! Good luck!",
-    testChannel: "bot-testing",
-    testMessage: "test",
-    banquetTime: "55 16",
+    banquetTime: "00 18",
     banquetChannel: "bot-testing",
     banquetMessage: "test"
 } 
@@ -73,30 +71,9 @@ cron.schedule('00 45 12,20 * * *', () => {
     timeZone: "America/Los_Angeles"
 });
 
-//scheduled message for banquets
-
-   
-            
-            // bot.settings.ensure(guild.id, defaultSettings);
-            // let banquetChannel = bot.settings.get(guild.id, "banquetChannel");
-            // let banquetMessage = bot.settings.get(guild.id, "banquetMessage");
- 
-            // guild.channels 
-            //     .find(channel => channel.name === banquetChannel)
-            //     .send(banquetMessage)
-            //     .catch(console.error);
-     
-
-    
-
-        
-        
-    
-            
-
-
 // welcome message to new guild member    
 bot.on('guildMemberAdd', member => {
+
     bot.settings.ensure(member.guild.id, defaultSettings);
 
     let welcomeMessage = bot.settings.get(member.guild.id, "welcomeMessage");
@@ -105,10 +82,9 @@ bot.on('guildMemberAdd', member => {
     welcomeMessage = welcomeMessage.replace("{{user}}", member.user.tag)
 
     member.guild.channels
-        .find(channel => channel.name === bot.settings.get(member.guild.id, "welcomeChannel"))
+        .find(channel => channel.name == bot.settings.get(member.guild.id, "welcomeChannel"))
         .send(welcomeMessage)
         .catch(console.error);
-    
     member
         .send(privateMessage)
         .catch(console.error);
@@ -140,113 +116,113 @@ bot.on('message', async (message) => {
 
         // weapons
 
-        if (fuseItem === 'mythicweapon' && fuseMaterial === 'maxepic') {
+        if (fuseItem === 'mythicweapon' && fuseMaterial === 'maxepic' && fuseMaterialCost !== undefined) {
             botMessage('max epics', fuseMaterialCost, 146.44, fuseMaterialCost, 80542000, 'mythic weapon')
-            .catch(console.error);
+            
         }
-        else if (fuseItem === 'mythicweapon' && fuseMaterial === 'maxunique') {
+        else if (fuseItem === 'mythicweapon' && fuseMaterial === 'maxunique' && fuseMaterialCost !== undefined) {
             botMessage('max uniques', fuseMaterialCost, 22.31, fuseMaterialCost, 41139640, 'mythic weapon')
-            .catch(console.error);
+            
         }
-        else if (fuseItem ==='mythicweapon' && fuseMaterial === 'level1epic') {
+        else if (fuseItem ==='mythicweapon' && fuseMaterial === 'level1epic' && fuseMaterialCost !== undefined) {
             botMessage('level 1 epics', fuseMaterialCost, 3864.13, fuseMaterialCost, 38641300, 'mythic weapon')
-            .catch(console.error);
-        }
-        else if (fuseItem === 'legendaryweapon' && fuseMaterial === 'maxunique') {
-           botMessage('max uniques', fuseMaterialCost, 9.23, fuseMaterialCost, 17024896, 'legendary weapon')
-           .catch(console.error);
            
         }
-        else if (fuseItem === 'legendaryweapon' && fuseMaterial === 'maxepic') {
+        else if (fuseItem === 'legendaryweapon' && fuseMaterial === 'maxunique' && fuseMaterialCost !== undefined) {
+           botMessage('max uniques', fuseMaterialCost, 9.23, fuseMaterialCost, 17024896, 'legendary weapon')
+           
+           
+        }
+        else if (fuseItem === 'legendaryweapon' && fuseMaterial === 'maxepic' && fuseMaterialCost !== undefined) {
             botMessage('max epics', fuseMaterialCost, 60.6, fuseMaterialCost, 33328685, 'legendary weapon' )
-            .catch(console.error);
+            
         }
-        else if (fuseItem === 'legendaryweapon' && fuseMaterial === 'level1epic') {
+        else if (fuseItem === 'legendaryweapon' && fuseMaterial === 'level1epic' && fuseMaterialCost !== undefined) {
             botMessage('level 1 epics', fuseMaterialCost, 1598.95, fuseMaterialCost, 15989488, 'legendary weapon')
-            .catch(console.error);
+            
         }
-        else if (fuseItem === 'uniqueweapon' && fuseMaterial === 'maxunique') {
+        else if (fuseItem === 'uniqueweapon' && fuseMaterial === 'maxunique' && fuseMaterialCost !== undefined) {
             botMessage('max uniques', fuseMaterialCost, 3, fuseMaterialCost, 5529454, 'unique weapon' )
-            .catch(console.error);
+            
         }
-        else if (fuseItem === 'uniqueweapon' && fuseMaterial === 'maxepic') {
+        else if (fuseItem === 'uniqueweapon' && fuseMaterial === 'maxepic' && fuseMaterialCost !== undefined) {
             botMessage('max epics', fuseMaterialCost, 19.68, fuseMaterialCost,  10824701, 'unique weapon')
-            .catch(console.error);
+            
         }
-        else if (fuseItem === 'uniqueweapon' && fuseMaterial === 'level1epic') {
+        else if (fuseItem === 'uniqueweapon' && fuseMaterial === 'level1epic' && fuseMaterialCost !== undefined) {
             botMessage('level 1 epics', fuseMaterialCost, 519.32, fuseMaterialCost, 5193167, 'unique weapon')
-            .catch(console.error);
+           
         }
-        else if (fuseItem === 'epicweapon' && fuseMaterial === 'maxepic') {
+        else if (fuseItem === 'epicweapon' && fuseMaterial === 'maxepic' && fuseMaterialCost !== undefined) {
             botMessage('max epics', fuseMaterialCost, 2.98, fuseMaterialCost, 1637948, 'epic weapon')
-            .catch(console.error);
+           
         }
-        else if (fuseItem === 'epicweapon' && fuseMaterial === 'level1epic') {
+        else if (fuseItem === 'epicweapon' && fuseMaterial === 'level1epic' && fuseMaterialCost !== undefined) {
             botMessage('level 1 epics', fuseMaterialCost, 78.58, fuseMaterialCost, 785808, 'epic weapon')
-            .catch(console.error);
+            
         }
         // 
 
         // armors 
-        else if (fuseItem === 'mythicarmor' && fuseMaterial === 'maxunique') {
+        else if (fuseItem === 'mythicarmor' && fuseMaterial === 'maxunique' && fuseMaterialCost !== undefined) {
             botMessage('max uniques', fuseMaterialCost, 17.16, fuseMaterialCost, 31643040, 'mythic armor')
-            .catch(console.error);
+            
         }
-        else if (fuseItem === 'mythicarmor' && fuseMaterial === 'maxepic') {
+        else if (fuseItem === 'mythicarmor' && fuseMaterial === 'maxepic' && fuseMaterialCost !== undefined) {
             botMessage('max epics', fuseMaterialCost, 112.65, fuseMaterialCost, 61957500, 'mythic armor')
-            .catch(console.error);
+            
         }
-        else if (fuseItem === 'mythicarmor' && fuseMaterial === 'level1epic') {
+        else if (fuseItem === 'mythicarmor' && fuseMaterial === 'level1epic' && fuseMaterialCost !== undefined) {
             botMessage('level 1 epics', fuseMaterialCost, 2972.40, fuseMaterialCost, 29724000, 'mythic armor')
-            .catch(console.error);
+            
         }
         else if (fuseItem === 'mythicarmor' && fuseMaterial === 'treasure') {
             message.reply(`Using treasure pulls, it will cost you about 970m to max a mythic armor!`)
-            .catch(console.error);
+            
         }
-        else if (fuseItem === 'legendaryarmor' && fuseMaterial === 'maxunique') {
+        else if (fuseItem === 'legendaryarmor' && fuseMaterial === 'maxunique' && fuseMaterialCost !== undefined) {
             botMessage('max uniques', fuseMaterialCost, 7.10, fuseMaterialCost, 13096074, 'legendary armor')
-            .catch(console.error);
+            
         }
-        else if (fuseItem === 'legendaryarmor' && fuseMaterial === 'maxepic') {
+        else if (fuseItem === 'legendaryarmor' && fuseMaterial === 'maxepic' && fuseMaterialCost !== undefined) {
             botMessage('max epics', fuseMaterialCost, 46.61, fuseMaterialCost, 25637450, 'legendaryarmor')
-            .catch(console.error);
+            
         }
-        else if (fuseItem === 'legendaryarmor' && fuseMaterial === 'level1epic') {
+        else if (fuseItem === 'legendaryarmor' && fuseMaterial === 'level1epic' && fuseMaterialCost !== undefined) {
             botMessage('level 1 epics', fuseMaterialCost, 1229.96, fuseMaterialCost, 12299606, 'legendary armor')
-            .catch(console.error);
+            
         }
         else if (fuseItem === 'legendaryarmor' && fuseMaterial === 'treasure') {
             message.reply(`Using treasure pulls, it will cost you about 400m to max a legendary armor!`)
-            .catch(console.error);
+           
         }
-        else if (fuseItem === 'uniquearmor' && fuseMaterial === 'maxunique') {
+        else if (fuseItem === 'uniquearmor' && fuseMaterial === 'maxunique' && fuseMaterialCost !== undefined) {
             botMessage('max uniques', fuseMaterialCost, 2.31, fuseMaterialCost, 4253426, 'unique armor')
-            .catch(console.error);
+            
         }
-        else if (fuseItem === 'uniquearmor' && fuseMaterial === 'maxepic') {
+        else if (fuseItem === 'uniquearmor' && fuseMaterial === 'maxepic' && fuseMaterialCost !== undefined) {
             botMessage('max epics', fuseMaterialCost, 15.14, fuseMaterialCost, 8326693, 'unique armor')
-            .catch(console.error);
+            
         }
-        else if (fuseItem === 'uniquearmor' && fuseMaterial === 'level1epic') {
+        else if (fuseItem === 'uniquearmor' && fuseMaterial === 'level1epic' && fuseMaterialCost !== undefined) {
             botMessage('level 1 epics', fuseMaterialCost, 399.47, fuseMaterialCost, 3994744, 'unique armor')
-            .catch(console.error);
+          
         }
         else if (fuseItem === 'uniquearmor' && fuseMaterial === 'treasure') {
             message.reply(`Using treasure pulls, it will cost you about 130m to max a unique armor!`)
-            .catch(console.error);
+            
         }
-        else if (fuseItem === 'epicarmor' && fuseMaterial === 'maxepic') {
+        else if (fuseItem === 'epicarmor' && fuseMaterial === 'maxepic' && fuseMaterialCost !== undefined) {
             botMessage('max epics', fuseMaterialCost, 2.29, fuseMaterialCost, 1258426, 'epic armor')
-            .catch(console.error);
+            
         }
-        else if (fuseItem === 'epicarmor' && fuseMaterial === 'level1epic') {
+        else if (fuseItem === 'epicarmor' && fuseMaterial === 'level1epic' && fuseMaterialCost !== undefined) {
             botMessage('level 1 epics', fuseMaterialCost, 60.37, fuseMaterialCost, 603732, 'epic armor')
-            .catch(console.error);
+            
         }
         else if (fuseItem === 'epicarmor' && fuseMaterial === 'treasure') {
             message.reply(`Using treasure pulls, it will cost you about 20m to max a epic armor!`)
-            .catch(console.error);
+            
         }
         //
 
@@ -327,11 +303,11 @@ bot.on('message', async (message) => {
             },
             fields: [{
                 name: "**__Public Commands__**",
-                value: "**!fuse** : help with fusing costs"
+                value: "**!fuse** : help with fusing costs \n **!fuse help** : how to use !fuse \n **!fuse data** : fusing data \n **!help** : list of commands"
               },
               {
                   name: "**__Admin Commands__**",
-                  value: "**!showconf** : show current configurations \n\n **!setconf** : edit configurations"
+                  value: "**!showconf** : show current configurations \n**!setconf** : edit configurations"
               }
             ],
             timestamp: new Date(),
@@ -347,18 +323,18 @@ bot.on('message', async (message) => {
 
     const guildConf = bot.settings.ensure(message.guild.id, defaultSettings);
 
-    if (message.content.indexOf(guildConf.prefix) !== 0) return;
+    if (message.content.indexOf(config.prefix) !== 0) return;
 
     // setting configurations command
     if(command === "setconf") {
         // Command is admin only, let's grab the admin value: 
-        // const adminRole = message.guild.roles.find("name", guildConf.adminRole);
-        // if(!adminRole) return message.reply("Administrator Role Not Found");
+        const adminRole = message.guild.roles.find(role => role.name === guildConf.adminRole);
+        if(!adminRole) return message.reply("Administrator Role Not Found");
         
-        // // Then we'll exit if the user is not admin
-        // if(!message.member.roles.has(adminRole.id)) {
-        //   return message.reply("You're not an admin, sorry!");
-        // }
+        // Then we'll exit if the user is not admin
+        if(!message.member.roles.has(adminRole.id)) {
+          return message.reply("You're not an admin, sorry!");
+        }
         
         // Let's get our key and value from the arguments. 
         // This is array destructuring, by the way. 
@@ -376,19 +352,19 @@ bot.on('message', async (message) => {
                 description: `Hey GM! I'm here to teach you how to set up your own guild-specific configurations.`,
                 fields: [{
                     name: "**__Why do I need to set configs?__**",
-                    value: "Every guild is different - they each have their own specific channels, own specific banquet times, GMs want their own welcome/reminder messages, etc. \n\n By setting my configs, you are able to edit all of these to your liking."
+                    value: "Every guild discord is different - they have their own specific channels, banquet times, GMs want their own welcome/reminder messages, etc etc. \n\n By setting configs, you are able to edit all of these to your liking."
                   },
                   {
                       name: "**__Configuration Keys and Value__**",
-                      value: "There are 2 parts to my configurations: **keys and values**. \n\n The **key** is the type of configuration. \n\n Some examples of **keys** include \n 'WELCOME_MESSAGE', 'welcomeChannel', 'expoMessage', & 'expoChannel'. \n\n The **Value** is the value of that particular **key**, and it is what you will be changing. \n\n For example, the default **value** of the **key** 'expoChannel' is set to 'general'. This means that my expedition reminders will be sent to the channel called 'general'. \n\n If you don't have a channel named 'general', or rather want me to send exped reminders to a different channel, let's say, 'expedition-reminders', you would change the **value** of expoChannel to 'expedition-reminders'.  \n\n Keep in mind that letter casing matters. \n\n If you type !showconf, it will show you your current **keys** and **values**"
+                      value: "There are 2 parts to my configurations: **keys and values**. \n\n The **key** is the type of configuration. \n\n Some examples of **keys** include \n 'welcomeMessage', 'welcomeChannel', 'expoMessage', & 'banquetTime'. \n\n The **value** is the value of that particular **key**, and it is what you will be changing. \n\n For example, the default **value** of the **key** 'expoChannel' is set to 'general'. This means that my expedition reminders will be sent to the channel called 'general' by default. \n\n If you don't have a channel called 'general', or want me to send exped reminders to a different channel, let's say, 'expedition-reminders', you would change the **value** of expoChannel to 'expedition-reminders'."
                   },
                   {
                     name: "**__Changing values of keys__**",
-                    value: "To start, type !setconf followed by the **key** and then the **value** you want. \n\n For example, if you wanted to change the value of **expoChannel** to **'expedition-reminders'**, simply type in **!setconf expoChannel expedition-reminders**. This will set my expedition reminder messages to send only to the channel **expedition-reminders**. \n\n You can then type !showconf to view your changes. \n\n Simple enough, right? Now go edit some configs! "
+                    value: "To change the value of keys, type !setconf followed by the **key** and then the **value** you want. \n\n For the example above, simply type **!setconf expoChannel expedition-reminders**. This will set my expedition reminder messages to send only to the channel **expedition-reminders**. \n\n You can then type **!showconf** to view your changes. \n\n Simple enough, right? \n\n If you're not getting reminders from me, there is probably an error in your configs (check spelling and/or letter casing). \n\n Now go edit your configs! "
                   },
                   {
-                    name: "**__Available Keys and their Function__**",
-                    value: "**prefix**: The prefix you want to put before every command. \n\n **welcomeChannel**: My welcome message will be sent to this channel. \n\n **welcomeMessage**: My welcome message. Note that {{user}} will be replaced by the new guild member's username. \n\n **privateMessage**: The private DM that I will be sending to the new guild member. \n\n **expoChannel**: The channel I will send my expedition reminders to. \n\n **expoMessage**: The expedition reminder message"
+                    name: "**__Keys and their functionalities__**",
+                    value: "**prefix**: The prefix you want to put before every command. \n\n **welcomeChannel**: My welcome message will be sent to this channel. \n\n **welcomeMessage**: This message will be sent to the welcomeChannel when a new guild member joins the discord. Note that {{user}} will be replaced by the new guild member's username. \n\n **privateMessage**: I will send this private DM to new guild members. \n\n **expoChannel**: The channel I will send my expedition reminders to. \n\n **expoMessage**: This message will be sent to the expoChannel 15 minutes prior to expeditions. \n\n **banquetTime**: the time you want me to remind your guild about banquet. \n\n **banquetChannel**: the channel I will send the banquetMessage to. \n\n **banquetMessage**: the message I will send to banquetChannel."
                   }
                 ],
                 timestamp: new Date(),
@@ -398,11 +374,6 @@ bot.on('message', async (message) => {
                 }
               }
             }).catch(console.error)
-        }
-        if (prop === "clear") {
-           bot.settings.clear()
-           return message.reply("Your configuration has been reset to default settings.")
-           .catch(console.error)
         }
 
         if(!bot.settings.has(message.guild.id, prop)) {
@@ -414,7 +385,39 @@ bot.on('message', async (message) => {
             return message.reply("You cannot enter a blank key. Type '!setconf help' for configuration help, or '!showconf' for your current configurations.")
             .catch(console.error);
         }
-        
+
+        //settings banquet configs
+        if (prop === 'banquetTime') {
+
+            let banquetTime = bot.settings.get(message.guild.id, 'banquetTime');
+            
+            let banquetReminder = new cronJobManager(`banquet_reminder`, `00 ${banquetTime} * * *`, () => {
+               
+                bot.settings.ensure(message.guild.id, defaultSettings);
+                
+                let banquetChannel = bot.settings.get(message.guild.id, 'banquetChannel');
+                let banquetMessage = bot.settings.get(message.guild.id, 'banquetMessage');
+                
+                message.guild.channels 
+                    .find(channel => channel.name === banquetChannel)
+                    .send(banquetMessage)
+                    .catch(console.error);
+            },
+            {
+                start:true,
+                timeZone: 'Americas/Los_Angeles'
+            }
+            );
+
+            if (value) {
+                let newTime = value.join(" ");
+                banquetReminder.update(`banquet_reminder`, `00 ${newTime} * * *`);
+                let jobs = banquetReminder.listCrons();
+                console.log(jobs);
+            }
+           
+        }
+
         bot.settings.set(message.guild.id, value.join(" "), prop);
         
         message.channel.send(`Guild configuration item ${prop} has been changed to:\n\`${value.join(" ")}\``);
@@ -422,21 +425,24 @@ bot.on('message', async (message) => {
 
     // shows current configuration
     if(command === "showconf") {
+        const ayy = bot.emojis.find(emoji => emoji.name === "ayy")
         let configProps = Object.keys(guildConf).map(prop => {
-          return `${prop}  :  ${guildConf[prop]}\n`;
+          return `▶ ${prop} ▶  :  ${guildConf[prop]}\n\n`;
         });
+        let configPropsJoin = configProps.join(" ")
+        
         message.channel.send(`The following are the server's current configuration:
-        \`\`\`${configProps}\`\`\``).catch(console.error);
+        \`\`\`${configPropsJoin}\`\`\``).catch(console.error);
     }
 
-    // bot testing command
-    if (command === "test") {
-        let testMessage = bot.settings.get(message.guild.id, "testMessage");
-        message.guild.channels
-        .find(channel => channel.name === bot.settings.get(message.guild.id, "testChannel"))
-        .send(testMessage)
-        .catch(console.error);
-    } 
+    // // bot testing command
+    // if (command === "test") {
+    //     let testMessage = bot.settings.get(message.guild.id, "testMessage");
+    //     message.guild.channels
+    //     .find(channel => channel.name === bot.settings.get(message.guild.id, "testChannel"))
+    //     .send(testMessage)
+    //     .catch(console.error);
+    // } 
 });
 
 bot.login(config.token);
