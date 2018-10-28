@@ -79,3 +79,21 @@
 - **banquetChannel**: the channel I will send the banquetMessage to. 
 
 - **banquetMessage**: the message I will send to banquetChannel.
+
+### Default Configurations
+
+- **welcomeChannel** : welcome
+
+- **welcomeMessage** : Say hello to @{{user}}, everyone! We all need a warm welcome sometimes :D
+
+- **privateMessage** : Hi there, welcome to our discord! Please change your nickname to your in-game IGN. Type !help for my list of commands!
+
+- **expoChannel** : general
+
+- **expoMessage** : @everyone Expeditions are starting in 15 minutes! Good luck!
+
+- **banquetTime** : 00 18 <-- ( this is formatted by [minute] [hour] in PST, so 00 18 = 6pm PST )
+
+- **banquetChannel** : general
+
+- **banquetMessage** : @everyone Banquet is starting in 15 minutes!
