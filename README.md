@@ -29,6 +29,8 @@
 - !setconf - edit configurations (admin only)
 
 
+# IMPORTANT - Please read before using!
+
 ## Configuration Help:
 
 ### Why do I need to set configs?
@@ -92,7 +94,7 @@
 
 - **expoMessage** : @everyone Expeditions are starting in 15 minutes! Good luck!
 
-- **banquetTime** : 00 18 <-- ( this is formatted by [minute] [hour] in PST, so 00 18 = 6pm PST )
+- **banquetTime** : 00 18 <-- ( banquet time is formatted by [minute][hour] in PST, so 00 18 = 6pm PST. This is important when setting your own banquet time! )
 
 - **banquetChannel** : general
 
