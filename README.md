@@ -1,5 +1,6 @@
 # Slime Bot
 
+![alt text](https://banner2.kisspng.com/20180403/yxe/kisspng-maplestory-2-maplestory-adventures-video-game-boss-slime-5ac4353af285a0.8111380015228081229934.jpg)
 
 # A Maplestory M discord bot, built with discord.js. 
 
