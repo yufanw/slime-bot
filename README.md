@@ -29,7 +29,7 @@
 - !setconf - edit configurations (admin only)
 
 
-# IMPORTANT - Please read before using!
+# IMPORTANT - please read before using!
 
 ## Configuration Help:
 
@@ -67,7 +67,7 @@
 
 ### Default Configurations
 
-- **adminRole** : GM <-- important: make sure to assign 'GM' role to yourself so you can use !setconf.
+- **adminRole** : GM <-- **important: make sure to assign 'GM' role to yourself so you can use !setconf.**
   
 - **welcomeChannel** : welcome
 
@@ -79,7 +79,7 @@
 
 - **expoMessage** : @everyone Expeditions are starting in 15 minutes! Good luck!
 
-- **banquetTime** : 00 18 <-- ( banquet time is formatted by [minute][hour] in PST, so 00 18 = 6pm PST. This is important when setting your own banquet time! )
+- **banquetTime** : 00 18 <-- **important: banquetTime is formatted by [minute][hour] in PST, so 00 18 = 6pm PST. Keep this in mind when setting your own banquetTime!**
 
 - **banquetChannel** : general
 
