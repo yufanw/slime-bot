@@ -33,9 +33,12 @@
 
 ### Why do I need to set configs?
  
-- Every guild discord is different - they have their own specific channels, banquet times, GMs want their own welcome/reminder     messages, etc etc. \n\n By setting configs, you are able to edit all of these to your liking."
+- Every guild discord is different - they have their own specific channels, banquet times, GMs want their own welcome/reminder     messages, etc etc. 
+
+- By setting configs, you are able to edit all of these to your liking."
 
 ### Configuration Keys and Value
+
 - There are 2 parts to my configurations: **keys and values**.
 
 - The **key** is the type of configuration. 
