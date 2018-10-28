@@ -37,8 +37,8 @@ const defaultSettings = {
     expoChannel: "general",
     expoMessage: "@everyone Expeditions are starting in 15 minutes! Good luck!",
     banquetTime: "00 18",
-    banquetChannel: "bot-testing",
-    banquetMessage: "test"
+    banquetChannel: "general",
+    banquetMessage: "@everyone Banquet is starting in 15 minutes!"
 } 
 
 
