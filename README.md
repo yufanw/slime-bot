@@ -35,7 +35,7 @@
  
 - Every guild discord is different - they have their own specific channels, banquet times, GMs want their own welcome/reminder     messages, etc etc. 
 
-- By setting configs, you are able to edit all of these to your liking."
+- By setting configs, you are able to edit all of these to your liking.
 
 ### Configuration Keys and Value
 
