@@ -1,13 +1,9 @@
 # Slime Bot
 
 
-# A discord bot for Maplestory M! 
+# A Maplestory M discord bot, built with discord.js. 
 
-  Built with discord.js.
-
-  Uses Enmap for per-server configurations.
-
-  Uses cron for scheduled messages.
+ - Utilizes Enmap for per-server configurations and node-cron/cron-job-manager for scheduled messages.
   
 
 # Functionalities:
@@ -18,13 +14,17 @@
 
 - Greets new guild members. Customize welcome greeting and channel it sends to.
 
-- !fuse command to help with fusing costs.
+- !fuse command to help with fusing - includes cost and data.
+
 
 # Commands: 
 
 - !fuse - helps with fusing costs.
+
 - !help - shows bot's commands.
-- !showconf - show current configurations
-- !setconf - edit configurations
+
+- !showconf - shows current configurations
+
+- !setconf - edit configurations (admin only)
 
 
