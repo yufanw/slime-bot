@@ -29,15 +29,13 @@
 - !setconf - edit configurations (admin only)
 
 
-# IMPORTANT - please read before using!
+# IMPORTANT - please give yourself the role of 'GM' in order to start using admin commands.
 
 ## Configuration Help:
 
-### Why do I need to set configs?
+### What are configs and why they are important
  
-- Every guild discord is different - they have their own specific channels, banquet times, GMs want their own welcome/reminder     messages, etc etc. 
-
-- By setting configs, you are able to edit all of these to your liking.
+- Every guild discord is different - they have their own specific channels, banquet times, GMs want their own reminder messages, etc etc. Configurations basically help you edit all of these to your liking.
 
 ### Configuration Keys and Value
 
@@ -45,16 +43,16 @@
 
 - The **key** is the type of configuration. 
 
-- Some examples of **keys** include: 'welcomeMessage', 'welcomeChannel', 'expoMessage', & 'banquetTime'. 
+- Some examples of **keys** include: 'expoMessage', 'banquetTime', 'expoChannel', & 'privateMessage'.
 
-- The **value** is the value of that particular **key**, and it is what you will be changing. 
+- The **value** is the value of that particular **key**, and this is what you will be changing. 
 
-- For example, the default **value** of the **key** 'expoChannel' is set to 'general'. This means that my expedition reminders will be -sent to the channel called 'general' by default. 
+- For example, the default **value** of the **key** 'expoChannel' is set to 'general'. This means that my expedition reminders will be sent to the channel called 'general' by default. 
 
-- If you don't have a channel called 'general', or want me to send exped reminders to a different channel, let's say, 'expedition-reminders', you would change the **value** of expoChannel to 'expedition-reminders'."
+- If you don't have a channel called 'general', or want me to send expedition reminders to a different channel, let's say a channel called 'expedition-reminders', you would change the **value** of expoChannel to 'expedition-reminders'."
                   
-- Changing values of keys
-- To change the value of keys, type !setconf followed by the **key** and then the **value** you want.
+### Changing values
+- To change the value of a key, type !setconf followed by the **key** and then the **value** you want.
 
 - For the example above, simply type **!setconf expoChannel expedition-reminders**. This will set my expedition reminder messages to send only to the channel **expedition-reminders**.
 
@@ -68,10 +66,6 @@
 ### Default Configurations
 
 - **adminRole** : GM <-- ***important: make sure to assign 'GM' role to yourself so you can use !setconf.***
-  
-- **welcomeChannel** : welcome
-
-- **welcomeMessage** : Say hello to @{{user}}, everyone! We all need a warm welcome sometimes :D
 
 - **privateMessage** : Hi there, welcome to our discord! Please change your nickname to your in-game IGN. Type !help for my list of commands!
 
@@ -88,17 +82,13 @@
                  
 ### Keys and their functionalities
 
-- **adminRole** : name of admin role. Only people with this role can use !setconf.
+- **adminRole** : name of admin role. Only people with this role can use !setconf. Defaults to 'GM' and is not shown/cannot be changed.
 
-- **welcomeChannel**: My welcome message will be sent to this channel. 
-
-- **welcomeMessage**: This message will be sent to the welcomeChannel when a new guild member joins the discord. Note that {{user}} will be replaced by the new guild member's username. 
-
-- **privateMessage**: I will send this private DM to new guild members. 
+- **privateMessage**: I will send this private DM to new guild members when they join the server.
 
 - **expoChannel**: The channel I will send my expedition reminders to. 
 
-- **expoMessage**: This message will be sent to the expoChannel 15 minutes prior to expeditions. 
+- **expoMessage**: This message will be sent to the expoChannel **15 minutes** prior to expeditions. 
 
 - **banquetTime**: the time you want me to remind your guild about banquet. 
 
