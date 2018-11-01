@@ -2,9 +2,9 @@
 
 ![alt text](https://banner2.kisspng.com/20180403/yxe/kisspng-maplestory-2-maplestory-adventures-video-game-boss-slime-5ac4353af285a0.8111380015228081229934.jpg)
 
-# A Maplestory M discord bot, built with discord.js. 
+# A discord bot built for Maplestory M using discord.js. 
 
- - Utilizes Enmap for per-server configurations and node-cron/cron-job-manager for scheduled messages.
+ - Utilizes **Enmap** for per-server configurations and **cron** for scheduled messages.
   
 
 ## Functionalities:
@@ -13,7 +13,7 @@
 
 - Set 15 minute banquet reminders at your own time. Customize message and channel it sends to.
 
-- Greets new guild members. Customize welcome greeting and channel it sends to.
+- Greets new guild members. Customize private welcome greeting.
 
 - !fuse command to help with fusing - includes cost and data.
 
@@ -24,12 +24,14 @@
 
 - !help - shows bot's commands.
 
-- !showconf - shows current configurations
+- !showconf - shows current configurations (GM only)
 
-- !setconf - edit configurations (admin only)
+- !setconf - edit configurations (GM only)
+  
+- !resetconf - resets configurations to default settings (GM only)
 
 
-# IMPORTANT - please give yourself the role of 'GM' in order to start using admin commands.
+# IMPORTANT - please give yourself the role of 'GM' in order to start using admin commands such as !setconf and !showconf.
 
 ## Configuration Help:
 
