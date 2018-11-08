@@ -1,9 +1,8 @@
 const Discord = require('discord.js');
-const bot = new Discord.Client();
+const bot = new Discord.Client({autoReconnect:true});
 const config = require('./config.json')
 const cron = require('node-cron');
 const Enmap = require('enmap');
-const cronJobManager = require('cron-job-manager');
 
 // enmap settings back-end
 bot.settings = new Enmap({
@@ -31,20 +30,18 @@ const defaultSettings = {
     banquetMessage: "@everyone Banquet is starting in 15 minutes!"
 } 
 
+
 // banquet reminders activates when bot starts
 bot.on('ready', () => {
-    console.log('I am ready!');
-    
     console.log(`Serving ${bot.guilds.size} servers`);
+    console.log('Ready boss!');
 
     bot.guilds.forEach(guild => {
-        let banquetTime = bot.settings.get(guild.id, 'banquetTime');
 
-        const banquetReminder = cron.schedule(`00 ${banquetTime} * * *`, () => {
+        banquetTime = bot.settings.get(guild.id, 'banquetTime');
 
-            if (banquetReminder == undefined) {
-                banquetReminder.stop();
-            }
+        cron.schedule(`00 ${banquetTime} * * *`, () => {
+
             let banquetChannel = bot.settings.get(guild.id, 'banquetChannel');
             let banquetMessage = bot.settings.get(guild.id, 'banquetMessage');
 
@@ -53,7 +50,7 @@ bot.on('ready', () => {
                 .send(banquetMessage)
                 .catch(console.error);
     })
-})     
+})
 })
 
 bot.on('guildCreate', guild => {
@@ -71,7 +68,7 @@ bot.on("guildDelete", guild => {
 
 
 // scheduled message for expeditions
-cron.schedule('00 45 12,20 * * *', () => {
+cron.schedule('00 45 11,19 * * *', () => {
 
     bot.guilds.forEach((guild) => {
 
@@ -252,11 +249,11 @@ bot.on('message', async (message) => {
                   },
                   {
                       name: "**__Current Fusing Item Options__**",
-                      value: "mythicweapon, legendaryweapon, uniqueweapon, epicweapon \n\n mythicarmor, legendaryarmor, uniquearmor, epicarmor"
+                      value: "mythicweapon, legendaryweapon, uniqueweapon, epicweapon \n\n mythicarmor, legendaryarmor, uniquearmor, epicarmor \n\n"
                   },
                   {
                       name: "**__Current Fusing Material Options__**",
-                      value: "maxunique, maxepic, level1epic"
+                      value: "maxunique, maxepic, level1epic, treasure (cost from treasure pulls)"
                   }
                 ],
                 timestamp: new Date(),
@@ -365,25 +362,7 @@ bot.on('message', async (message) => {
         
         const [prop, ...value] = args;
 
-        // if invalid key is entered
-        if(!bot.settings.has(message.guild.id, prop)) {
-            return message.reply("This key is not in the configuration. Type !showconf to see your current keys.")
-            .catch(console.error);
-        }
-
-
-        if (prop !== 'banquetTime') {
-             // if blank value is entered
-        if (prop === undefined ) {
-            return message.reply("You cannot enter a blank key. Type '!setconf help' for configuration help, or '!showconf' for your current configurations.")
-            .catch(console.error);
-        }
-
-        if (value === undefined) {
-            return message.reply(`You cannot enter a blank value. Type '!setconf help' for configuration help, or '!showconf' for your current configurations.`)
-        }
-
-        // configurations help
+      
         if (prop === 'help') {
             return message.reply({embed: {
                 color: 3447003,
@@ -419,6 +398,28 @@ bot.on('message', async (message) => {
             }).catch(console.error)
         }
 
+        // if invalid key is entered
+        if(!bot.settings.has(message.guild.id, prop)) {
+            return message.reply("This key is not in the configuration. Type !showconf to see your current keys.")
+            .catch(console.error);
+        }
+
+
+        if (prop !== 'banquetTime') {
+
+        // if blank value is entered
+        if (prop === undefined ) {
+            return message.reply("You cannot enter a blank key. Type '!setconf help' for configuration help, or '!showconf' for your current configurations.")
+            .catch(console.error);
+        }
+
+        if (value === undefined) {
+            return message.reply(`You cannot enter a blank value. Type '!setconf help' for configuration help, or '!showconf' for your current configurations.`)
+        }
+
+        // configurations help
+       
+
         bot.settings.set(message.guild.id, value.join(" "), prop);
         
         message.channel.send(`Guild configuration item ${prop} has been changed to:\n\`${value.join(" ")}\``);
@@ -441,16 +442,15 @@ bot.on('message', async (message) => {
             if (minute < 0 || hour < 0) {
                 return message.channel.send(`Please enter a valid time, with minute first and hour second, in military time. \n For example: 30 18 = 6:30pm`)
             }
+
             else {
                 bot.settings.set(message.guild.id, value.join(" "), 'banquetTime');
-                message.channel.send(`Guild configuration item ${prop} has been changed to:\n\`${value.join(" ")}\``);
-                bot.destroy();
-                bot.login(config.token);
-                return;
-                
-            }
-                
-            
+                message.channel
+                .send(`Your banquet time has been changed to ${value.join(" ")}.`)
+                .then(bot.destroy())
+                .then(() => bot.login(config.token))
+                .catch(err => console.log(err));
+            } 
         }
     }
     
@@ -493,6 +493,8 @@ bot.on('message', async (message) => {
 
 });
 
-
+process.on('unhandledRejection', (reason, promise) => {
+    console.log('Unhandled Rejection at:', reason.stack || reason)
+  })
 
 bot.login(config.token);
