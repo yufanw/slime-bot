@@ -1,11 +1,11 @@
 {
-  "name": "discord-bot",
+  "name": "slime-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "slimebotpublic.js",
+  "main": "app.js",
   "scripts": {
-    "start": "forever start slimebotpublic.js",
-    "stop": "forever stop slimebotpublic.js"
+    "start": "forever start app.js",
+    "stop": "forever stop app.js"
   },
   "author": "",
   "license": "ISC",
