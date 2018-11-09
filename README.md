@@ -4,7 +4,7 @@
 
 # A discord bot built for Maplestory M using discord.js. 
 
- - Utilizes **Enmap** for per-server configurations and **cron** for scheduled messages.
+ - Utilizes **Enmap** for per-server configurations and **Cron** for scheduled messages.
   
 
 ## Functionalities:
