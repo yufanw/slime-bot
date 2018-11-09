@@ -75,7 +75,7 @@
 
 - **expoMessage** : @everyone Expeditions are starting in 15 minutes! Good luck!
 
-- **banquetTime** : 00 18 <-- ***important: banquetTime is formatted by [minute][hour] in PST, so 00 18 = 6pm PST. Keep this in mind when setting your own banquetTime!***
+- **banquetTime** : 00 18 <-- ***important: banquetTime is formatted by [minute][hour] in server time, so 00 18 = 6pm server time. Keep this in mind when setting your own banquetTime!***
 
 - **banquetChannel** : general
 
