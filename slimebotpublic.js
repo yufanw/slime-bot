@@ -31,14 +31,14 @@ const defaultSettings = {
 } 
 
 
-// banquet reminders activates when bot starts
+// when bot starts, banquet reminders are deployed with current banquetTime configs.
 bot.on('ready', () => {
     console.log(`Serving ${bot.guilds.size} servers`);
     console.log('Ready boss!');
 
     bot.guilds.forEach(guild => {
-
-        banquetTime = bot.settings.get(guild.id, 'banquetTime');
+        
+        let banquetTime = bot.settings.get(guild.id, 'banquetTime');
 
         cron.schedule(`00 ${banquetTime} * * *`, () => {
 
@@ -122,6 +122,10 @@ bot.on('message', async (message) => {
 
     const fusing = (numberOfMaterials, materialCost, upgradeCost) => {
         return numberWithCommas(Math.round((numberOfMaterials * Number(materialCost))+ upgradeCost))
+    }
+    //trivia
+    if(command === 'trivia') {
+
     }
     
     // fusing cost calculator
@@ -291,7 +295,7 @@ bot.on('message', async (message) => {
             });
         }
 
-        // fues treasure data
+        // fuse treasure data
         else if (fuseItem === 'treasure') {
             message.reply({embed: {
                 color: 3447003,
@@ -444,12 +448,16 @@ bot.on('message', async (message) => {
             }
 
             else {
+
                 bot.settings.set(message.guild.id, value.join(" "), 'banquetTime');
+
                 message.channel
                 .send(`Your banquet time has been changed to ${value.join(" ")}.`)
-                .then(bot.destroy())
-                .then(() => bot.login(config.token))
-                .catch(err => console.log(err));
+                .catch(err => console.log(err))
+                .then(process.exit);
+                
+
+    
             } 
         }
     }
