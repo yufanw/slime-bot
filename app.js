@@ -12,6 +12,10 @@ bot.settings = new Enmap({
     cloneLevel: 'deep'
   });
 
+bot.points = new Enmap({
+    name: "points"
+});
+
 
 // when bot starts, logs how many keys are loaded from database.
 bot.settings.defer.then( () => {
@@ -27,7 +31,7 @@ const defaultSettings = {
     expoMessage: "@everyone Expeditions are starting in 15 minutes! Good luck!",
     banquetTime: "00 18",
     banquetChannel: "general",
-    banquetMessage: "@everyone Banquet is starting in 15 minutes!"
+    banquetMessage: "@everyone Banquet is starting in 15 minutes!",
 } 
 
 
@@ -107,6 +111,7 @@ const numberWithCommas = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 
+let chaosTeam = [];
 
 // bot commmands
 bot.on('message', async (message) => {
@@ -116,18 +121,14 @@ bot.on('message', async (message) => {
 
     if (!message.guild || message.author.bot) return;
 
-    const guildConf = bot.settings.ensure(message.guild.id, defaultSettings);
-
     if (message.content.indexOf(config.prefix) !== 0) return;
+
+    const guildConf = bot.settings.ensure(message.guild.id, defaultSettings);
 
     const fusing = (numberOfMaterials, materialCost, upgradeCost) => {
         return numberWithCommas(Math.round((numberOfMaterials * Number(materialCost))+ upgradeCost))
     }
-    //trivia
-    if(command === 'trivia') {
-
-    }
-    
+  
     // fusing cost calculator
     if(command === 'fuse') {
 
@@ -273,10 +274,6 @@ bot.on('message', async (message) => {
         else if (fuseItem === 'data') {
             message.reply({embed: {
                 color: 3447003,
-                author: {
-                  name: bot.user.username,
-                  icon_url: bot.user.avatarURL
-                },
                 fields: [{
                     name: "**__Exp Required To Max__**",
                     value: "**Mythic Weapon**: 2,940,600 \n **Legendary Weapon**: 1,216,800 \n **Unique Weapon**: 395,200 \n **Epic Weapon**: 59,800 \n\n **Mythic Armor**: 2,262,000 \n **Legendary Armor**: 936,000 \n **Unique Armor**: 304,000 \n **Epic Armor**: 45,994"
@@ -284,13 +281,12 @@ bot.on('message', async (message) => {
                   {
                     name: "**__# of Max Uniques/Epics to Max__**",
                     value: "**Mythic Weapon**: 22.31 max uniques, 146.44 max epics \n **Legendary Weapon**: 9.23 max uniques, 60.6 max epics \n **Unique Weapon**: 3 max uniques, 19.68 max epics \n\n **Mythic Armor**: 17.16 max uniques, 112.65 max epics \n **Legendary Armor**: 7.1 max uniques, 46.61 max epics \n **Unique Armor**: 2.31 max uniques, 15.14 max epics"
+                  },
+                  {
+                      name: "**__# of Epic Powders to Max__**",
+                      value: "**Mythic Weapon**: 7,728.25 \n **Legendary Weapon**: 3197.90 \n **Unique Weapon**: 1038.63 \n **Epic Weapon**: 157.16 \n\n **Mythic Armor**: 5,944.81 \n **Legendary Armor**: 2459.92 \n **Unique Armor**: 798.95 \n **Epic Armor**: 120.88"
                   }
-                ],
-                timestamp: new Date(),
-                footer: {
-                  icon_url: bot.user.avatarURL,
-                  text: "Slime Bot"
-                }
+                ]
               }
             });
         }
@@ -299,20 +295,11 @@ bot.on('message', async (message) => {
         else if (fuseItem === 'treasure') {
             message.reply({embed: {
                 color: 3447003,
-                author: {
-                  name: bot.user.username,
-                  icon_url: bot.user.avatarURL
-                },
                 fields: [{
-                    name: "**__Cost to max via treasure pulls__**",
-                    value: "**Mythic Weapon**: 3.5b \n **Legendary Weapon**: 1.6b \n **Unique Weapon**: 520m \n **Epic Weapon**: 75m  \n\n **Mythic Armor**: 970m \n **Legendary Armor**: 400m \n **Unique Armor**: 130m \n **Epic Armor**: 16m"
+                    name: "**__Average Cost to max via treasure pulls__**",
+                    value: "**Mythic Weapon**: 3.5b \n **Legendary Weapon**: 1.6b \n **Unique Weapon**: 520m \n **Epic Weapon**: 75m  \n\n **Mythic Armor**: 970m \n **Legendary Armor**: 400m \n **Unique Armor**: 130m \n **Epic Armor**: 18m"
                   },
-                ],
-                timestamp: new Date(),
-                footer: {
-                  icon_url: bot.user.avatarURL,
-                  text: "Slime Bot"
-                }
+                ]
               }
             });
         }
@@ -323,34 +310,335 @@ bot.on('message', async (message) => {
            .catch(console.error);
         }
     }
+
+    // jewel data
+    if (command === 'jewel') {
+
+        const [prop, value] = args;
+
+        if (prop === 'red') {
+
+            if (value === 'setbonus') {
+                const embed = new Discord.RichEmbed()
+                .setColor(0x00AE86)
+                .setTitle("**__Red Jewels Set Bonus__**")
+                .addField("__SSS__", 
+                "No Data")
+                .addField("__SS__",
+                "Phy ATK + 300 \n Mag ATK + 300 \n JMP + 10% \n Crit DMG RES + 4%")
+                .addField("__S__", 
+                "Phy ATK + 200 \n Mag ATK + 200 \n JMP + 5% \n Crit DMG RES + 2%")
+                .addField("__A__", 
+                "Phy ATK + 100 \n Mag ATK + 100 \n JMP + 2%")
+                
+            
+            message.channel.send(embed);
+            }
+
+            else {
+                const embed = new Discord.RichEmbed()
+                .setColor(0x00AE86)
+                .setTitle("**__Red Jewels__**")
+                .addField("__Phy/Mag ATK__", 
+                "SSS: 80.00 \n SS: 60.00 \n S: 43.00 \n A: 30.00 \n B: 18.00 \n C: 10.00")
+                .addField("__Jump %__",
+                "SSS: 2.00 \n SS: 2.00 \n S: 1.50 \n A: 1.20 \n B: 0.90 \n C: 0.70")
+                .addField("__Crit DMG RES %__", 
+                "SSS: 1.00 \n SS: 0.80 \n S: 0.60 \n A: 0.40 \n B: 0.30 \n C: 0.20")
+                
+            
+            message.channel.send(embed);
+            }
+        }
+        
+        else if (prop === "blue") {
+
+            if (value === 'setbonus') {
+                const embed = new Discord.RichEmbed()
+                .setColor(0x00AE86)
+                .setTitle("**__Blue Jewels Set Bonus__**")
+                .addField("__SSS__", 
+                "No Data")
+                .addField("__SS__",
+                "Mag DEF + 500 \n Phy DMG + 5% \n SPD + 4% \n ACC + 3%")
+                .addField("__S__", 
+                "Mag DEF + 250 \n Phy DMG + 3% \n SPD + 2%")
+                .addField("__A__", 
+                "Mag DEF + 100 \n Phy DMG + 1% ")
+                
+            
+            message.channel.send(embed);
+            }
+            else {
+
+            
+            const embed = new Discord.RichEmbed()
+            .setColor(0x00AE86)
+            .setTitle("**__Blue Jewels__**")
+            .addField("__Phy DMG %__", 
+            "SSS: 1.00 \n SS: 0.70 \n S: 0.50 \n A: 0.30 \n B: 0.20 \n C: 0.10")
+            .addField("__ACC %__",
+            "SSS: 2.10 \n SS: 1.60 \n S: 1.20 \n A: 0.90 \n B: 0.60 \n C: 0.40")
+            .addField("__SPD %__", 
+            "SSS: 2.50 \n SS: 2.00 \n S: 1.50 \n A: 1.20 \n B: 0.90 \n C: 0.70")
+            .addField("__MAG DEF__", 
+            "SSS: 200.00 \n SS: 143.00 \n S: 103.00 \n A: 73.00 \n B: 43.00 \n C: 23.00")
+            
+        
+            message.channel.send(embed);
+            }
+        }
+
+        else if (prop === "green") {
+
+            if (value === 'setbonus') {
+                const embed = new Discord.RichEmbed()
+                .setColor(0x00AE86)
+                .setTitle("**__Green Jewels Set Bonus__**")
+                .addField("__SSS__", 
+                "No Data")
+                .addField("__SS__",
+                "Phy DEF + 500 \n Mag DMG + 5% \n SPD + 4% \n ACC + 3%")
+                .addField("__S__", 
+                "Phy DEF + 250 \n Mag DMG + 3% \n SPD + 2%")
+                .addField("__A__", 
+                "Phy DEF + 100 \n Mag DMG + 1% ")
+                
+            
+            message.channel.send(embed);
+            }
+
+            else {
+                const embed = new Discord.RichEmbed()
+                .setColor(0x00AE86)
+                .setTitle("**__Green Jewels__**")
+                .addField("__Mag DMG %__", 
+                "SSS: 1.00 \n SS: 0.70 \n S: 0.50 \n A: 0.30 \n B: 0.20 \n C: 0.10")
+                .addField("__Crit DMG %__",
+                "SSS: 1.00 \n SS: 0.80 \n S: 0.50 \n A: 0.40 \n B: 0.30 \n C: 0.20")
+                .addField("__EVD %__", 
+                "SSS: 2.10 \n SS: 1.60 \n S: 1.20 \n A: 0.90 \n B: 0.60 \n C: 0.40")
+                .addField("__PHY DEF__", 
+                "SSS: 200.00 \n SS: 143.00 \n S: 103.00 \n A: 73.00 \n B: 43.00 \n C: 23.00")
+                
+            
+                message.channel.send(embed);
+            }
+            
+           
+        }
+
+        else if (prop === "yellow") {
+
+            if (value === 'setbonus') {
+                const embed = new Discord.RichEmbed()
+                .setColor(0x00AE86)
+                .setTitle("**__Yellow Jewels Set Bonus__**")
+                .addField("__SSS__", 
+                "No Data")
+                .addField("__SS__",
+                "Drop + 3% \n EXP + 3% \n KBK RES + 200")
+                .addField("__S__", 
+                "Drop + 2% \n EXP + 1.5% \n KBK RES + 100")
+                .addField("__A__", 
+                "Drop + 1% \n EXP + 1%")
+                
+            
+            message.channel.send(embed);
+            }
+            
+            else {
+                const embed = new Discord.RichEmbed()
+                .setColor(0x00AE86)
+                .setTitle("**__Yellow Jewels__**")
+                .addField("__EXP %__", 
+                "SSS: 3.10 \n SS: 2.40 \n S: 1.80 \n A: 1.40 \n B: 0.90 \n C: 0.70")
+                .addField("__PEN %__",
+                "SSS: 3.80 \n SS: 2.00 \n S: 1.40 \n A: 0.90 \n B: 0.50 \n C: 0.20")
+                .addField("__KBK Res__", 
+                "SSS: 8.00 \n SS: 6.00 \n S: 4.00 \n A: 3.00 \n B: 2.00 \n C: 1.00")
+                .addField("__Drop Rate %__", 
+                "SSS: 1.60 \n SS: 1.30 \n S: 1.00 \n A: 0.80 \n B: 0.60 \n C: 0.50")
+                
+            
+                message.channel.send(embed);
+            }
+            
+        }
+
+        else if (prop === "purple") {
+
+            if (value === 'setbonus') {
+                const embed = new Discord.RichEmbed()
+                .setColor(0x00AE86)
+                .setTitle("**__Purple Jewels Set Bonus__**")
+                .addField("__SSS__", 
+                "No Data")
+                .addField("__SS__",
+                "Crit DMG + 2% \n Boss ATK + 3% \n Boss DEF + 3% \n Crit Rate + 2%")
+                .addField("__S__", 
+                "Crit DMG + 2% \n Boss ATK + 2% \n Boss DEF + 2%")
+                .addField("__A__", 
+                "Block + 4% \n Boss ATK + 1%")
+                
+            
+            message.channel.send(embed);
+            }
+            else {
+                const embed = new Discord.RichEmbed()
+                .setColor(0x00AE86)
+                .setTitle("**__Purple Jewels__**")
+                .addField("__Crit Rate__", 
+                "SSS: 0.70 \n SS: 0.60 \n S: 0.50 \n A: 0.40 \n B: 0.30 \n C: 0.20")
+                .addField("__Boss ATK__",
+                "SSS: 1.30 \n SS: 1.00 \n S: 0.70 \n A: 0.50 \n B: 0.30 \n C: 0.20")
+                .addField("__Boss DEF__", 
+                "SSS: 1.00 \n SS: 0.80 \n S: 0.60 \n A: 0.50 \n B: 0.30 \n C: 0.20")
+                .addField("__Block__", 
+                "SSS: 2.10 \n SS: 1.60 \n S: 1.20 \n A: 0.90 \n B: 0.60 \n C: 0.40")
+                
+            
+                message.channel.send(embed);
+            }
+           
+        }
+
+        else if (prop === "help") {
+            message.channel.send(`Type "!jewel <jewel color>" to view jewels of that color. Type "!jewel <jewel color> setbonus" for their set bonuses.`)
+        }
+
+        else {
+            message.channel.send(`Please type "!jewel help".`)
+        }
+    }
     
     // list available bot commands
     if (command === 'help') {
         message.reply({embed: {
             color: 3447003,
-            author: {
-              name: bot.user.username,
-              icon_url: bot.user.avatarURL
-            },
             fields: [{
                 name: "**__Public Commands__**",
-                value: "**!fuse** : help with fusing costs \n **!fuse help** : how to use !fuse \n **!fuse data** : fusing data \n **!fuse treasure** : treasure pull fusing data \n **!help** : list of commands"
+                value: "**!fuse** : help with fusing costs \n **!fuse help** : how to use !fuse \n **!fuse data** : fusing data \n **!fuse treasure** : treasure pull fusing data \n **!chaos checkin** : check-in for chaos exped team \n **!chaos checkout** : check-out from chaos exped team \n **!chaos view** : view current chaos exped team \n **!help** : list of commands"
               },
               {
                   name: "**__Admin Commands__**",
-                  value: "**!showconf** : show current configurations \n**!setconf** : edit configurations \n **!resetconf** : resets configurations to default settings"
+                  value: "**!showconf** : show current configurations \n**!setconf** : edit configurations \n **!resetconf** : resets configurations to default settings \n **!chaos remove [number]** : remove current numbered player from chaos exped team \n **!chaos clear** : clear chaos exped team "
               }
-            ],
-            timestamp: new Date(),
-            footer: {
-              icon_url: bot.user.avatarURL,
-              text: "Slime Bot"
-            }
+            ]
           }
         }).catch(console.error);
     }
 
+    //pokemon prank
 
+    // if (command === 'pokemon') {
+    //     const embed = new Discord.RichEmbed()
+    //         .setColor(0x00AE86)
+    //         .setTitle("‌‌A wild pokémon has appeared!")
+    //         .setDescription("Guess the pokémon and type p!catch <pokémon> to catch it!")
+    //         .setImage("https://i.imgur.com/bofyvTq.png");
+
+    //         bot.channels.get('510638387850641457').send(embed)
+    // }
+    
+    // chaos expedition check-ins
+    if(command === "chaos") {
+
+        const [prop, ...value] = args;
+
+        let member = message.member.displayName;
+
+        if (prop === "checkin") {
+           
+            if (chaosTeam.includes('empty') === false && chaosTeam.length === 10) {
+                return message.reply(`Chaos team is full!`)
+            }
+            
+            else if (chaosTeam.includes(member)) {
+                return message.reply(`You're already checked in!`)
+            }
+
+            else {
+
+            chaosTeam.push(member);
+        
+            message.reply(`you just checked in to chaos expeditions.`)
+
+            message.channel.send({embed: {
+                color: 3447003,
+                fields: [{
+                    name: "**__Current Chaos Team__**",
+                    value: `1. ${chaosTeam[0]} \n 2. ${chaosTeam[1]} \n 3. ${chaosTeam[2]} \n 4. ${chaosTeam[3]} \n 5. ${chaosTeam[4]} \n 6.${chaosTeam[5]} \n 7.  ${chaosTeam[6]} \n 8. ${chaosTeam[7]} \n 9. ${chaosTeam[8]} \n 10. ${chaosTeam[9]}`
+                  },
+                ]
+              }
+            })
+            } 
+        }
+        
+        if (prop === "checkout") {
+            chaosTeam.splice(member)
+
+            message.reply(`you have been removed from the chaos team.`);
+
+            message.channel.send({embed: {
+                color: 3447003,
+                fields: [{
+                    name: "**__Current Chaos Team__**",
+                    value: `1. ${chaosTeam[0]} \n 2. ${chaosTeam[1]} \n 3. ${chaosTeam[2]} \n 4. ${chaosTeam[3]} \n 5. ${chaosTeam[4]} \n 6.${chaosTeam[5]} \n 7.  ${chaosTeam[6]} \n 8. ${chaosTeam[7]} \n 9. ${chaosTeam[8]} \n 10. ${chaosTeam[9]}`
+                  },
+                ]
+              }
+            })
+        }
+
+        if (prop === 'remove') {
+            const adminRole = message.guild.roles.find(role => role.name === guildConf.adminRole);
+
+            if(!adminRole) return message.reply("Administrator Role Not Found");
+        
+        
+            if(!message.member.roles.has(adminRole.id)) {
+                return message.reply("Hey, you're not the boss of me!");
+            }
+            message.channel.send(`${chaosTeam[value-1]} has been removed from chaos team.`)
+
+            chaosTeam.splice(value-1)
+
+            
+        }
+        
+
+        if (prop === "clear") {
+            const adminRole = message.guild.roles.find(role => role.name === guildConf.adminRole);
+
+            if(!adminRole) return message.reply("Administrator Role Not Found");
+        
+        
+            if(!message.member.roles.has(adminRole.id)) {
+                return message.reply("You're not an admin, sorry!");
+            }
+
+            chaosTeam = [];
+
+            message.reply(`The chaos team has been cleared.`)
+        }
+
+        if (prop === "view") {
+            message.channel.send({embed: {
+                color: 3447003,
+                fields: [{
+                    name: "**__Current Chaos Team__**",
+                    value: `1. ${chaosTeam[0]} \n 2. ${chaosTeam[1]} \n 3. ${chaosTeam[2]} \n 4. ${chaosTeam[3]} \n 5. ${chaosTeam[4]} \n 6.${chaosTeam[5]} \n 7.  ${chaosTeam[6]} \n 8. ${chaosTeam[7]} \n 9. ${chaosTeam[8]} \n 10. ${chaosTeam[9]}`
+                  },
+                ]
+              }
+            })
+        }
+
+    }
+
+    
     // setting configurations command
     if(command === "setconf") {
 
@@ -361,7 +649,7 @@ bot.on('message', async (message) => {
         
         // exits if user is not admin
         if(!message.member.roles.has(adminRole.id)) {
-          return message.reply("You're not an admin, sorry!");
+          return message.reply("Hey, you're not the boss of me!");
         }
         
         const [prop, ...value] = args;
@@ -370,10 +658,6 @@ bot.on('message', async (message) => {
         if (prop === 'help') {
             return message.reply({embed: {
                 color: 3447003,
-                author: {
-                  name: bot.user.username,
-                  icon_url: bot.user.avatarURL
-                },
                 title: '**__Configuration Help__**',
                 description: `Hey GM! I'm here to teach you how to set up your own guild-specific configurations.`,
                 fields: [{
@@ -392,12 +676,7 @@ bot.on('message', async (message) => {
                     name: "**__Keys and their functions__**",
                     value: "**privateMessage**: I will send this private DM to new guild members. \n\n **expoChannel**: The channel I will send my expedition reminders to. \n\n **expoMessage**: This message will be sent to the expoChannel 15 minutes prior to expeditions. \n\n **banquetTime**: the time you want me to remind your guild about banquet. You must enter time in this format: [minute][hour] military time. IE: 30 18 = 6:30pm \n\n **banquetChannel**: the channel I will send the banquetMessage to. \n\n **banquetMessage**: the message I will send to banquetChannel."
                   }
-                ],
-                timestamp: new Date(),
-                footer: {
-                  icon_url: bot.user.avatarURL,
-                  text: "Slime Bot"
-                }
+                ]
               }
             }).catch(console.error)
         }
