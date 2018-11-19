@@ -15,12 +15,20 @@
 
 - Greets new guild members. Customize private welcome greeting.
 
-- !fuse command to help with fusing - includes cost and data.
+- !fuse command to help with fusing - includes cost and data (treasure pulls, powder, equips)
+
+- !jewel command for jewel data.
+
+- !chaos command for organizing chaos expeditions.
 
 
 ## Commands: 
 
 - !fuse - helps with fusing costs.
+
+- !jewel - jewel data
+
+- !chaos - organizing chaos expedition
 
 - !help - shows bot's commands.
 
