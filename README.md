@@ -21,7 +21,7 @@
 
 - !jewel command for jewel data.
 
-- !chaos command for organizing chaos expeditions.
+- !exped command for organizing chaos expeditions.
 
 - !gf command for organizing guild fort.
 
@@ -32,7 +32,7 @@
 
 - !jewel - jewel data
 
-- !chaos - organizing chaos expedition
+- !exped - organizing chaos expedition
 
 - !gf - organizing guild forts
 
