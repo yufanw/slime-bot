@@ -10,8 +10,10 @@
 ## Functionalities:
 
 - 15 minute reminders for afternoon and nighttime expeditions! Customize message and channel it sends to.
+  
+- 15 minute reminder for guild fort. Customize message and channel it sends to.
 
-- Set 15 minute banquet reminders at your own time. Customize message and channel it sends to.
+- Reminder for banquet. Customize time, message and channel it sends to.
 
 - Greets new guild members. Customize private welcome greeting.
 
@@ -21,6 +23,8 @@
 
 - !chaos command for organizing chaos expeditions.
 
+- !gf command for organizing guild fort.
+
 
 ## Commands: 
 
@@ -29,6 +33,8 @@
 - !jewel - jewel data
 
 - !chaos - organizing chaos expedition
+
+- !gf - organizing guild forts
 
 - !help - shows bot's commands.
 
@@ -89,20 +95,31 @@
 
 - **banquetMessage** : @everyone Banquet is starting in 15 minutes!
 
+- **fortMessage** : @everyone Guild fort is starting in 15 minutes!
+
+- **fortChannel** : general
+
+- **checkInChannel** : general
+
                  
 ### Keys and their functionalities
 
-- **adminRole** : name of admin role. Only people with this role can use !setconf. Defaults to 'GM' and is not shown/cannot be changed.
+- **adminRole** : name of admin role. Only people with this role can use !setconf. Defaults to 'GM', so when using the bot for the first time, please assign yourself the role of 'GM' to start using.
 
-- **privateMessage**: I will send this private DM to new guild members when they join the server.
+- **privateMessage**: private DM sent to new guild members joining discord.
 
-- **expoChannel**: The channel I will send my expedition reminders to. 
+- **expoChannel**: channel for expedition reminders.
 
-- **expoMessage**: This message will be sent to the expoChannel **15 minutes** prior to expeditions. 
+- **expoMessage**: this message will be sent to expoChannel **15 minutes** prior to expeditions. 
 
-- **banquetTime**: the time you want me to remind your guild about banquet. 
+- **banquetTime**: the time you want me to remind your guild about banquet.
 
-- **banquetChannel**: the channel I will send the banquetMessage to. 
+- **banquetChannel**: channel for banquet reminders.
 
-- **banquetMessage**: the message I will send to banquetChannel.
+- **banquetMessage**: message sent to banquetChannel.
 
+- **fortMessage** : message sent to fortChannel.
+
+- **fortChannel** : channel for guild fort reminders.
+
+- **checkInChannel** : channel to use !chaos command in.

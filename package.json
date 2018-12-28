@@ -1,7 +1,7 @@
 {
   "name": "slime-bot",
   "version": "1.0.0",
-  "description": "",
+  "description": "discord bot for maplestory m",
   "main": "app.js",
   "scripts": {
     "start": "forever start app.js",

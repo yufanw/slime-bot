@@ -1,24 +1,18 @@
 const Discord = require('discord.js');
-const bot = new Discord.Client({autoReconnect:true});
+const bot = new Discord.Client();
 const config = require('./config.json')
 const cron = require('node-cron');
 const Enmap = require('enmap');
-const util = require('util');
+
 
 // enmap settings back-end
-bot.settings = new Enmap({
+enmap = new Enmap({
     name: "settings",
     fetchAll: true,
     autoFetch: true,
     cloneLevel: 'deep'
   });
 
-
-// when bot starts, logs how many keys are loaded from database.
-bot.settings.defer.then( () => {
-    console.log(bot.settings.size + " keys loaded");
-  });
- 
 
 // enmap settings front-end  
 const defaultSettings = {		
@@ -29,8 +23,17 @@ const defaultSettings = {
     banquetTime: "00 18",
     banquetChannel: "general",
     banquetMessage: "@everyone Banquet is starting in 15 minutes!",
-} 
-
+    fortMessage: '@everyone Guild fort in 15 minutes! Good luck!',
+    fortChannel: 'general',
+    checkInChannel: 'general',
+    chaosTeam: [],
+    chaosTeam2: [],
+    chaosTeam3: {
+        name: "Team 1",
+        team: []
+    },
+    guildFort: [],
+}
 
 // when bot starts, banquet reminders are deployed with current banquetTime configs.
 bot.on('ready', () => {
@@ -38,13 +41,15 @@ bot.on('ready', () => {
     console.log('Ready boss!');
 
     bot.guilds.forEach(guild => {
-        
-        let banquetTime = bot.settings.get(guild.id, 'banquetTime');
+
+        enmap.ensure(guild.id, defaultSettings);
+
+        let banquetTime = enmap.get(guild.id, 'banquetTime');
 
         cron.schedule(`00 ${banquetTime} * * *`, () => {
 
-            let banquetChannel = bot.settings.get(guild.id, 'banquetChannel');
-            let banquetMessage = bot.settings.get(guild.id, 'banquetMessage');
+            let banquetChannel = enmap.get(guild.id, 'banquetChannel');
+            let banquetMessage = enmap.get(guild.id, 'banquetMessage');
 
             guild.channels
                 .find(channel => channel.name === banquetChannel)
@@ -64,25 +69,94 @@ bot.on('guildCreate', guild => {
 bot.on("guildDelete", guild => {
     console.log(`I have been removed from: ${guild.name} (id: ${guild.id})`);
     bot.user.setActivity(`Serving ${bot.guilds.size} servers`);
-    bot.settings.delete(guild.id);
+    enmap.delete(guild.id);
   });
-
 
 // scheduled message for expeditions
 cron.schedule('00 45 11,19 * * *', () => {
 
     bot.guilds.forEach((guild) => {
 
-        bot.settings.ensure(guild.id, defaultSettings);
+        enmap.ensure(guild.id, defaultSettings);
 
-        let expoChannel = bot.settings.get(guild.id, "expoChannel");
+        let expoChannel = enmap.get(guild.id, "expoChannel");
             
-        let expoMessage = bot.settings.get(guild.id, "expoMessage");
+        let expoMessage = enmap.get(guild.id, "expoMessage");
+
             
-        guild.channels 
-            .find(channel => channel.name === expoChannel)
-            .send(expoMessage)
-            .catch(console.error);
+        guild.channels
+            .find((channel) => {
+                if (channel.name === expoChannel) {
+                    channel
+                        .send(expoMessage)
+                        .catch(console.error);
+                } else {
+                    return;
+                }
+            })
+
+    })
+},
+{
+    scheduled: true,
+    timeZone: "America/Los_Angeles"
+});
+
+// guild fort reminders
+cron.schedule('00 45 20 * * *', () => {
+
+    bot.guilds.forEach((guild) => {
+
+        let fortChannel = enmap.get(guild.id, "fortChannel");
+        
+        let fortMessage = enmap.get(guild.id, "fortMessage");
+
+            
+        guild.channels
+        .find((channel) => {
+            if (channel.name === fortChannel) {
+                channel
+                    .send(fortMessage)
+                    .catch(console.error);
+            } else {
+                return;
+            }
+        })
+    })
+       
+         
+},
+{
+    scheduled: true,
+    timeZone: "America/Los_Angeles"
+});
+
+// auto clearing chaos teams
+cron.schedule('00 01 13,21 * * *', () => {
+
+    bot.guilds.forEach((guild) => {
+
+        enmap.ensure(guild.id, defaultSettings);
+
+        enmap.set(guild.id, [], 'chaosTeam');
+        enmap.set(guild.id, [], 'chaosTeam2');
+        enmap.set(guild.id, [], 'chaosTeam3');
+    })
+},
+{
+    scheduled: true,
+    timeZone: "America/Los_Angeles"
+});
+
+// auto clearing guild fort
+cron.schedule('00 16 21 * * *', () => {
+
+    bot.guilds.forEach((guild) => {
+
+        enmap.ensure(guild.id, defaultSettings);
+
+        enmap.set(guild.id, [], 'guildFort');
+       
     })
 },
 {
@@ -93,9 +167,9 @@ cron.schedule('00 45 11,19 * * *', () => {
 // welcome message to new guild member    
 bot.on('guildMemberAdd', member => {
 
-    bot.settings.ensure(member.guild.id, defaultSettings);
+    enmap.ensure(member.guild.id, defaultSettings);
 
-    let privateMessage = bot.settings.get(member.guild.id, "privateMessage");
+    let privateMessage = enmap.get(member.guild.id, "privateMessage");
 
     member
         .send(privateMessage)
@@ -108,29 +182,47 @@ const numberWithCommas = (x) => {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 
-let chaosTeam = [];
-
-let chaosTeam2 = [];
-
-let players = [];
-
 // bot commmands
 bot.on('message', async (message) => {
 
     const args = message.content.split(/\s+/g);
     const command = args.shift().slice(config.prefix.length).toLowerCase();
-
     if (!message.guild || message.author.bot) return;
 
     if (message.content.indexOf(config.prefix) !== 0) return;
 
-    const guildConf = bot.settings.ensure(message.guild.id, defaultSettings);
+    const guildConf = enmap.ensure(message.guild.id, defaultSettings);
 
     const fusing = (numberOfMaterials, materialCost, upgradeCost) => {
         return numberWithCommas(Math.round((numberOfMaterials * Number(materialCost))+ upgradeCost))
     }
-    
+    if (command === 'addconf') {
+        enmap.forEach( (val, key) => enmap.set(key, {
+            name: "Team 3",
+            team: []
+        }, "chaosTeam3") );
+       
+    }
 
+    if (command === 'deleteconf') {
+        enmap.forEach( (val, key) => enmap.deleteProp(key, 'chaosTeam3'))
+    }
+
+    if (command === 'disarray') {
+        message.channel.send('Bodana stfu')
+    }
+    if (command === 'bobo') {
+        message.channel.send('sit on my face')
+    }
+    if (command === 'cule') {
+        message.channel.send('send nudes')
+    }
+    if (command === 'golden') {
+        message.channel.send('check in and do GD plz!')
+    }
+    if (command === 'hana') {
+        message.channel.send(':tongue::sweat_drops::sweat_drops:')
+    }
     
     // fusing cost calculator
     if(command === 'fuse') {
@@ -249,7 +341,7 @@ bot.on('message', async (message) => {
                 },
                 fields: [{
                     name: "**__Let me help you with fusing calculations!__**",
-                    value: "1. Please type in !fuse followed by what you want to max (mythicweapon, legendaryweapon, uniquearmor, etc) \n \n 2. Follow that with your fusing material (maxepic, level1epic, maxunique) \n \n 3. Follow that with the cost of that fusing material (IE: 15000000, 10000000, etc) \n \n 4. Press Enter to find out your fusing cost!"
+                    value: "1. Please type in !fuse followed by what you want to max (mythicweapon, legendaryweapon, uniquearmor, etc) \n \n 2. Follow that with your fusing material (maxepic, level1epic, maxunique) \n \n 3. Follow that with the cost of that fusing material (IE: 15000000, 10000000, etc) \n \n 4. Press Enter to find out your fusing cost! \n \n"
                   },
                   {
                     name: "**__Examples__**",
@@ -261,8 +353,13 @@ bot.on('message', async (message) => {
                   },
                   {
                       name: "**__Current Fusing Material Options__**",
-                      value: "maxunique, maxepic, level1epic, treasure (cost from treasure pulls)"
+                      value: "maxunique, maxepic, level1epic"
+                  },
+                  {
+                      name: "**__Other Fusing Commands__**",
+                      value: "**!fuse data**: fusing data \n **!fuse treasure**: treasure pull data"
                   }
+
                 ],
                 timestamp: new Date(),
                 footer: {
@@ -509,11 +606,11 @@ bot.on('message', async (message) => {
         }
 
         else if (prop === "help") {
-            message.channel.send(`Type "!jewel <jewel color>" to view jewels of that color. Type "!jewel <jewel color> setbonus" for their set bonuses.`)
+            message.reply(`Type "!jewel <jewel color>" to view jewels of that color. Type "!jewel <jewel color> setbonus" for their set bonuses.`)
         }
 
         else {
-            message.channel.send(`Please type "!jewel help".`)
+            message.reply(`Please type "!jewel help".`)
         }
     }
     
@@ -523,11 +620,11 @@ bot.on('message', async (message) => {
             color: 3447003,
             fields: [{
                 name: "**__Public Commands__**",
-                value: "**!fuse** : help with fusing costs \n **!fuse help** : how to use !fuse \n **!fuse data** : fusing data \n **!fuse treasure** : treasure pull fusing data \n **!jewel** : jewel data \n **!chaos checkin** : check-in for chaos exped team \n **!chaos checkout** : check-out from chaos exped team \n **!chaos view** : view current chaos exped team \n **!help** : list of commands"
+                value: "**!fuse** : help with fusing costs \n **!fuse data** : fusing data \n **!fuse treasure** : treasure pull fusing data \n **!jewel** : jewel data \n **!chaos** : expedition check-ins \n **!gf** : guild fort check-ins \n **!help** : list of commands"
               },
               {
                   name: "**__Admin Commands__**",
-                  value: "**!showconf** : show current configurations \n**!setconf** : edit configurations \n **!resetconf** : resets configurations to default settings \n **!chaos remove [number]** : remove current numbered player from chaos exped team \n **!chaos add [user]** : add user to chaos exped team (must be exact same spelling) **!chaos clear** : clear chaos exped team "
+                  value: "**!showconf** : show current configurations \n**!setconf** : edit configurations \n **!resetconf** : resets configurations to default settings"
               }
             ]
           }
@@ -543,26 +640,79 @@ bot.on('message', async (message) => {
 
     
     // chaos expedition check-ins
-    if(command === "chaos") {
+    
 
-        const [prop, value, secondValue] = args;
+    
+    if(command === "exped") {
+
+        const [prop, value, ...secondValue] = args;
 
         let member = message.member.displayName;
 
-        // checking in
+        let chaosTeam = enmap.get(message.guild.id, 'chaosTeam');
+
+        let chaosTeam2 = enmap.get(message.guild.id, 'chaosTeam2');
+
+        let chaosTeam3 = enmap.get(message.guild.id, 'chaosTeam3');
+
+        let checkInChannel = enmap.get(message.guild.id, 'checkInChannel');
+
+        let name3 = enmap.get(message.guild.id, 'chaosTeam3.name')
+
+        if (message.channel.name === checkInChannel) {
+
+             // checking in
         if (prop === "checkin") {
+
+            if (value === '3') {
+                if (chaosTeam3.team.includes(undefined) === false && chaosTeam3.team.length === 10) {
+                    message.reply(`${name3} is full`);
+    
+                    return message.channel.send({embed: {
+                        color: 3447003,
+                        fields: [{
+                            name: `**${name3}**`,
+                            value: `1. ${chaosTeam3.team[0]} \n 2. ${chaosTeam3.team[1]} \n 3. ${chaosTeam3.team[2]} \n 4. ${chaosTeam3.team[3]} \n 5. ${chaosTeam3.team[4]} \n 6. ${chaosTeam3.team[5]} \n 7.  ${chaosTeam3.team[6]} \n 8. ${chaosTeam3.team[7]} \n 9. ${chaosTeam3.team[8]} \n 10. ${chaosTeam3.team[9]}`
+                          },
+                        ]
+                      }
+                    })
+                }
+
+                else if (chaosTeam3.team.includes(member)) {
+                    return message.reply(`You're already checked in!`)
+                }
+
+                else {
+    
+                    enmap.push(message.guild.id, member, 'chaosTeam3.team');
+                
+                    message.reply(`you just checked in to ${name3}.`)
+        
+                    return message.channel.send({embed: {
+                        color: 3447003,
+                        fields: [{
+                            name: `**${name3}**`,
+                            value: `1. ${chaosTeam3.team[0]} \n 2. ${chaosTeam3.team[1]} \n 3. ${chaosTeam3.team[2]} \n 4. ${chaosTeam3.team[3]} \n 5. ${chaosTeam3.team[4]} \n 6. ${chaosTeam3.team[5]} \n 7.  ${chaosTeam3.team[6]} \n 8. ${chaosTeam3.team[7]} \n 9. ${chaosTeam3.team[8]} \n 10. ${chaosTeam3.team[9]}`
+                          },
+                        ]
+                      }
+                    })
+                } 
+            }
+
 
             if (value === '2') {
 
                 if (chaosTeam2.includes(undefined) === false && chaosTeam2.length === 10) {
 
-                    message.reply(`Chaos Team 2 is full`);
+                    message.reply(`Team 2 is full`);
     
-                    message.channel.send({embed: {
+                    return message.channel.send({embed: {
                         color: 3447003,
                         fields: [{
                             name: "**__Chaos Team 2__**",
-                            value: `1. ${chaosTeam2[0]} \n 2. ${chaosTeam2[1]} \n 3. ${chaosTeam2[2]} \n 4. ${chaosTeam2[3]} \n 5. ${chaosTeam2[4]} \n 6.${chaosTeam2[5]} \n 7.  ${chaosTeam2[6]} \n 8. ${chaosTeam2[7]} \n 9. ${chaosTeam2[8]} \n 10. ${chaosTeam2[9]}`
+                            value: `1. ${chaosTeam2[0]} \n 2. ${chaosTeam2[1]} \n 3. ${chaosTeam2[2]} \n 4. ${chaosTeam2[3]} \n 5. ${chaosTeam2[4]} \n 6. ${chaosTeam2[5]} \n 7.  ${chaosTeam2[6]} \n 8. ${chaosTeam2[7]} \n 9. ${chaosTeam2[8]} \n 10. ${chaosTeam2[9]}`
                           },
                         ]
                       }
@@ -575,15 +725,15 @@ bot.on('message', async (message) => {
     
                 else {
     
-                chaosTeam2.push(member);
+                enmap.push(message.guild.id, member, 'chaosTeam2');
             
-                message.reply(`you just checked in to chaos team 2.`)
+                message.reply(`you just checked in to Team 2.`)
     
-                message.channel.send({embed: {
+                return message.channel.send({embed: {
                     color: 3447003,
                     fields: [{
-                        name: "**__Chaos Team 2__**",
-                        value: `1. ${chaosTeam2[0]} \n 2. ${chaosTeam2[1]} \n 3. ${chaosTeam2[2]} \n 4. ${chaosTeam2[3]} \n 5. ${chaosTeam2[4]} \n 6.${chaosTeam2[5]} \n 7.  ${chaosTeam2[6]} \n 8. ${chaosTeam2[7]} \n 9. ${chaosTeam2[8]} \n 10. ${chaosTeam2[9]}`
+                        name: "**__Team 2__**",
+                        value: `1. ${chaosTeam2[0]} \n 2. ${chaosTeam2[1]} \n 3. ${chaosTeam2[2]} \n 4. ${chaosTeam2[3]} \n 5. ${chaosTeam2[4]} \n 6. ${chaosTeam2[5]} \n 7.  ${chaosTeam2[6]} \n 8. ${chaosTeam2[7]} \n 9. ${chaosTeam2[8]} \n 10. ${chaosTeam2[9]}`
                       },
                     ]
                   }
@@ -594,20 +744,20 @@ bot.on('message', async (message) => {
         else {  
             if (chaosTeam.includes(undefined) === false && chaosTeam.length === 10) {
 
-                if (chaosTeam2.includes(member)) {
-                    message.reply(`You are already checked in`)
+                if (chaosTeam2.includes(member) || chaosTeam.includes(member)) {
+                    return message.reply(`You are already checked in`)
                 }
-
+                
                 else {
-                    chaosTeam2.push(member);
+                    enmap.push(message.guild.id, member, 'chaosTeam2');
     
-                    message.reply(`Chaos team 1 is full, you have been added to chaos team 2`);
+                    message.reply(`Team 1 is full, you have been added to Team 2`);
     
-                    message.channel.send({embed: {
+                    return message.channel.send({embed: {
                         color: 3447003,
                         fields: [{
-                            name: "**__Chaos Team 2__**",
-                            value: `1. ${chaosTeam2[0]} \n 2. ${chaosTeam2[1]} \n 3. ${chaosTeam2[2]} \n 4. ${chaosTeam2[3]} \n 5. ${chaosTeam2[4]} \n 6.${chaosTeam2[5]} \n 7.  ${chaosTeam2[6]} \n 8. ${chaosTeam2[7]} \n 9. ${chaosTeam2[8]} \n 10. ${chaosTeam2[9]}`
+                            name: "**__Team 2__**",
+                            value: `1. ${chaosTeam2[0]} \n 2. ${chaosTeam2[1]} \n 3. ${chaosTeam2[2]} \n 4. ${chaosTeam2[3]} \n 5. ${chaosTeam2[4]} \n 6. ${chaosTeam2[5]} \n 7.  ${chaosTeam2[6]} \n 8. ${chaosTeam2[7]} \n 9. ${chaosTeam2[8]} \n 10. ${chaosTeam2[9]}`
                           },
                         ]
                       }
@@ -615,22 +765,59 @@ bot.on('message', async (message) => {
                 }
                 }
                 
-                
+            else if(chaosTeam2.includes(undefined) === false && chaosTeam2.length === 10) {
+
+                if (chaosTeam2.includes(member) || chaosTeam.includes(member)) {
+                    return message.reply(`You are already checked in`)
+                }
+
+                else if (chaosTeam.length !== 10) {
+                    enmap.push(message.guild.id, member, 'chaosTeam');
+
+                    message.reply(`Team 2 is full, you have been added to Team 1`);
+
+                    return message.channel.send({embed: {
+                        color: 3447003,
+                        fields: [{
+                            name: "**__Team 1__**",
+                            value: `1. ${chaosTeam[0]} \n 2. ${chaosTeam[1]} \n 3. ${chaosTeam[2]} \n 4. ${chaosTeam[3]} \n 5. ${chaosTeam[4]} \n 6. ${chaosTeam[5]} \n 7.  ${chaosTeam[6]} \n 8. ${chaosTeam[7]} \n 9. ${chaosTeam[8]} \n 10. ${chaosTeam[9]}`
+                          },
+                        ]
+                      }
+                    })
+                }
+
+                else {
+                    enmap.push(message.guild.id, member, 'chaosTeam3.team');
+    
+                    message.reply(`Team 2 is full, you have been added to ${name3}`);
+    
+                    return message.channel.send({embed: {
+                        color: 3447003,
+                        fields: [{
+                            name: `**${name3}**`,
+                            value: `1. ${chaosTeam3.team[0]} \n 2. ${chaosTeam3.team[1]} \n 3. ${chaosTeam3.team[2]} \n 4. ${chaosTeam3.team[3]} \n 5. ${chaosTeam3.team[4]} \n 6. ${chaosTeam3.team[5]} \n 7.  ${chaosTeam3.team[6]} \n 8. ${chaosTeam3.team[7]} \n 9. ${chaosTeam3.team[8]} \n 10. ${chaosTeam3.team[9]}`
+                          },
+                        ]
+                      }
+                    })
+                }
+            }    
             else if (chaosTeam.includes(member) || chaosTeam2.includes(member)) {
                 return message.reply(`You're already checked in!`)
             }
     
             else {
     
-                chaosTeam.push(member);
+                enmap.push(message.guild.id, member, 'chaosTeam');
             
-                message.reply(`you just checked in to chaos team 1.`)
+                message.reply(`you just checked in to Team 1.`)
     
-                message.channel.send({embed: {
+                return message.channel.send({embed: {
                     color: 3447003,
                     fields: [{
-                        name: "**__Chaos Team 1__**",
-                        value: `1. ${chaosTeam[0]} \n 2. ${chaosTeam[1]} \n 3. ${chaosTeam[2]} \n 4. ${chaosTeam[3]} \n 5. ${chaosTeam[4]} \n 6.${chaosTeam[5]} \n 7.  ${chaosTeam[6]} \n 8. ${chaosTeam[7]} \n 9. ${chaosTeam[8]} \n 10. ${chaosTeam[9]}`
+                        name: "**__Team 1__**",
+                        value: `1. ${chaosTeam[0]} \n 2. ${chaosTeam[1]} \n 3. ${chaosTeam[2]} \n 4. ${chaosTeam[3]} \n 5. ${chaosTeam[4]} \n 6. ${chaosTeam[5]} \n 7.  ${chaosTeam[6]} \n 8. ${chaosTeam[7]} \n 9. ${chaosTeam[8]} \n 10. ${chaosTeam[9]}`
                       },
                     ]
                   }
@@ -644,24 +831,38 @@ bot.on('message', async (message) => {
         // checking out
         else if (prop === "checkout") {
         
-            function remove(array, element) {
-                const index = array.indexOf(element);
-            
-                if (index !== -1) {
-                    array.splice(index, 1);
-                }
-            }
 
             if (chaosTeam.includes(member)) {
-                remove(chaosTeam, member);
+
+
+                enmap.remove(message.guild.id, member, 'chaosTeam');
+                
 
                 message.reply(`you have been removed from chaos team 1.`);
     
                 message.channel.send({embed: {
                     color: 3447003,
                     fields: [{
-                        name: "**__Chaos Team 1__**",
-                        value: `1. ${chaosTeam[0]} \n 2. ${chaosTeam[1]} \n 3. ${chaosTeam[2]} \n 4. ${chaosTeam[3]} \n 5. ${chaosTeam[4]} \n 6.${chaosTeam[5]} \n 7.  ${chaosTeam[6]} \n 8. ${chaosTeam[7]} \n 9. ${chaosTeam[8]} \n 10. ${chaosTeam[9]}`
+                        name: "**__Team 1__**",
+                        value: `1. ${chaosTeam[0]} \n 2. ${chaosTeam[1]} \n 3. ${chaosTeam[2]} \n 4. ${chaosTeam[3]} \n 5. ${chaosTeam[4]} \n 6. ${chaosTeam[5]} \n 7.  ${chaosTeam[6]} \n 8. ${chaosTeam[7]} \n 9. ${chaosTeam[8]} \n 10. ${chaosTeam[9]}`
+                      },
+                    ]
+                  }
+                })
+            }
+
+            if(chaosTeam3.team.includes(member)) {
+                enmap.remove(message.guild.id, member, 'chaosTeam3.team');
+
+                
+
+                message.reply(`you have been removed from ${name3}`);
+
+                return message.channel.send({embed: {
+                    color: 3447003,
+                    fields: [{
+                        name: `**${name3}**`,
+                        value: `1. ${chaosTeam3.team[0]} \n 2. ${chaosTeam3.team[1]} \n 3. ${chaosTeam3.team[2]} \n 4. ${chaosTeam3.team[3]} \n 5. ${chaosTeam3.team[4]} \n 6. ${chaosTeam3.team[5]} \n 7.  ${chaosTeam3.team[6]} \n 8. ${chaosTeam3.team[7]} \n 9. ${chaosTeam3.team[8]} \n 10. ${chaosTeam3.team[9]}`
                       },
                     ]
                   }
@@ -669,22 +870,26 @@ bot.on('message', async (message) => {
             }
 
             else if(chaosTeam2.includes(member)) {
-                remove(chaosTeam2, member);
+                enmap.remove(message.guild.id, member, 'chaosTeam2');
+
+                
 
                 message.reply(`you have been removed from chaos team 2`);
 
-                message.channel.send({embed: {
+                return message.channel.send({embed: {
                     color: 3447003,
                     fields: [{
-                        name: "**__Chaos Team 2__**",
-                        value: `1. ${chaosTeam2[0]} \n 2. ${chaosTeam2[1]} \n 3. ${chaosTeam2[2]} \n 4. ${chaosTeam2[3]} \n 5. ${chaosTeam2[4]} \n 6.${chaosTeam2[5]} \n 7.  ${chaosTeam2[6]} \n 8. ${chaosTeam2[7]} \n 9. ${chaosTeam2[8]} \n 10. ${chaosTeam2[9]}`
+                        name: "**__Team 2__**",
+                        value: `1. ${chaosTeam2[0]} \n 2. ${chaosTeam2[1]} \n 3. ${chaosTeam2[2]} \n 4. ${chaosTeam2[3]} \n 5. ${chaosTeam2[4]} \n 6. ${chaosTeam2[5]} \n 7.  ${chaosTeam2[6]} \n 8. ${chaosTeam2[7]} \n 9. ${chaosTeam2[8]} \n 10. ${chaosTeam2[9]}`
                       },
                     ]
                   }
                 })
             }
+
+            
             else {
-                message.reply(`You aren't checked in.`)
+                return message.reply(`You aren't checked in.`)
             }
 
         }
@@ -700,21 +905,23 @@ bot.on('message', async (message) => {
                 return message.reply("Hey, you're not the boss of me!");
             }
 
-            if (value === 'chaos1') {
+            if (value === 'team1') {
 
-                if (secondValue) {
+                if (secondValue.join(" ")) {
+
+                    let value = chaosTeam[secondValue-1];
                 
-                    if (chaosTeam[secondValue-1] !== undefined) {
+                    if (value !== undefined) {
                        
-                        message.channel.send(`${chaosTeam[secondValue-1]} has been removed from chaos team 1.`)
+                        message.channel.send(`${value} has been removed from Team 1.`)
 
-                        chaosTeam.splice(secondValue-1, 1)
+                        enmap.remove(message.guild.id, value, 'chaosTeam');
     
-                        message.channel.send({embed: {
+                        return message.channel.send({embed: {
                             color: 3447003,
                             fields: [{
-                                name: "**__Chaos Team 1__**",
-                                value: `1. ${chaosTeam[0]} \n 2. ${chaosTeam[1]} \n 3. ${chaosTeam[2]} \n 4. ${chaosTeam[3]} \n 5. ${chaosTeam[4]} \n 6.${chaosTeam[5]} \n 7.  ${chaosTeam[6]} \n 8. ${chaosTeam[7]} \n 9. ${chaosTeam[8]} \n 10. ${chaosTeam[9]}`
+                                name: "**__Team 1__**",
+                                value: `1. ${chaosTeam[0]} \n 2. ${chaosTeam[1]} \n 3. ${chaosTeam[2]} \n 4. ${chaosTeam[3]} \n 5. ${chaosTeam[4]} \n 6. ${chaosTeam[5]} \n 7.  ${chaosTeam[6]} \n 8. ${chaosTeam[7]} \n 9. ${chaosTeam[8]} \n 10. ${chaosTeam[9]}`
                                 },
                             ]
                         }})
@@ -723,11 +930,11 @@ bot.on('message', async (message) => {
                     else {
                         message.channel.send(`There is no one to remove here.`)
 
-                        message.channel.send({embed: {
+                        return message.channel.send({embed: {
                             color: 3447003,
                             fields: [{
-                                name: "**__Chaos Team 1__**",
-                                value: `1. ${chaosTeam[0]} \n 2. ${chaosTeam[1]} \n 3. ${chaosTeam[2]} \n 4. ${chaosTeam[3]} \n 5. ${chaosTeam[4]} \n 6.${chaosTeam[5]} \n 7.  ${chaosTeam[6]} \n 8. ${chaosTeam[7]} \n 9. ${chaosTeam[8]} \n 10. ${chaosTeam[9]}`
+                                name: "**__Team 1__**",
+                                value: `1. ${chaosTeam[0]} \n 2. ${chaosTeam[1]} \n 3. ${chaosTeam[2]} \n 4. ${chaosTeam[3]} \n 5. ${chaosTeam[4]} \n 6. ${chaosTeam[5]} \n 7.  ${chaosTeam[6]} \n 8. ${chaosTeam[7]} \n 9. ${chaosTeam[8]} \n 10. ${chaosTeam[9]}`
                                 },
                             ]
                         }})
@@ -735,24 +942,26 @@ bot.on('message', async (message) => {
                 }
 
                 else {
-                    message.reply(`Please enter '!chaos remove <chaos1 or chaos2> <number>'`);
+                    return message.reply(`Please enter '!exped remove <team1 or team2 or team3> <number>'`);
                 }
                 
             }
 
-            else if (value === 'chaos2') {
-                if (secondValue) {
+            else if (value === 'team2') {
+                if (secondValue.join(" ")) {
 
-                    if (chaosTeam[secondValue-1] !== undefined) {
-                        message.channel.send(`${chaosTeam[secondValue-1]} has been removed from chaos team 2.`)
+                    let value2 = chaosTeam2[secondValue-1];
 
-                        chaosTeam2.splice(secondValue-1, 1)
+                    if (value2 !== undefined) {
+                        message.channel.send(`${value2} has been removed from Team 2.`)
+
+                        enmap.remove(message.guild.id, value2, 'chaosTeam2');
         
-                        message.channel.send({embed: {
+                        return message.channel.send({embed: {
                             color: 3447003,
                             fields: [{
-                                name: "**__Chaos Team 2__**",
-                                value: `1. ${chaosTeam2[0]} \n 2. ${chaosTeam2[1]} \n 3. ${chaosTeam2[2]} \n 4. ${chaosTeam2[3]} \n 5. ${chaosTeam2[4]} \n 6.${chaosTeam2[5]} \n 7.  ${chaosTeam2[6]} \n 8. ${chaosTeam2[7]} \n 9. ${chaosTeam2[8]} \n 10. ${chaosTeam2[9]}`
+                                name: "**__Team 2__**",
+                                value: `1. ${chaosTeam2[0]} \n 2. ${chaosTeam2[1]} \n 3. ${chaosTeam2[2]} \n 4. ${chaosTeam2[3]} \n 5. ${chaosTeam2[4]} \n 6. ${chaosTeam2[5]} \n 7.  ${chaosTeam2[6]} \n 8. ${chaosTeam2[7]} \n 9. ${chaosTeam2[8]} \n 10. ${chaosTeam2[9]}`
                             },
                             ]
                         }})
@@ -761,11 +970,11 @@ bot.on('message', async (message) => {
                     else {
                         message.channel.send(`There is no one to remove here`);
 
-                        message.channel.send({embed: {
+                        return message.channel.send({embed: {
                             color: 3447003,
                             fields: [{
-                                name: "**__Chaos Team 2__**",
-                                value: `1. ${chaosTeam2[0]} \n 2. ${chaosTeam2[1]} \n 3. ${chaosTeam2[2]} \n 4. ${chaosTeam2[3]} \n 5. ${chaosTeam2[4]} \n 6.${chaosTeam2[5]} \n 7.  ${chaosTeam2[6]} \n 8. ${chaosTeam2[7]} \n 9. ${chaosTeam2[8]} \n 10. ${chaosTeam2[9]}`
+                                name: "**__Team 2__**",
+                                value: `1. ${chaosTeam2[0]} \n 2. ${chaosTeam2[1]} \n 3. ${chaosTeam2[2]} \n 4. ${chaosTeam2[3]} \n 5. ${chaosTeam2[4]} \n 6. ${chaosTeam2[5]} \n 7.  ${chaosTeam2[6]} \n 8. ${chaosTeam2[7]} \n 9. ${chaosTeam2[8]} \n 10. ${chaosTeam2[9]}`
                             },
                             ]
                         }})
@@ -773,12 +982,53 @@ bot.on('message', async (message) => {
                 }
 
                 else {
-                    message.reply(`Please enter '!chaos remove <chaos1 or chaos2> <number>'`)
+                    return message.reply(`Please enter '!exped remove <team1 or team2 or team3> <number>'`)
+                }
+            }
+
+            else if (value === 'team3') {
+                if (secondValue.join(" ")) {
+
+                    let value3 = chaosTeam3[secondValue-1];
+
+                    if (value3 !== undefined) {
+                        message.channel.send(`${value3} has been removed from ${name3}.`)
+
+                        enmap.remove(message.guild.id, value3, 'chaosTeam3.team');
+        
+                        return message.channel.send({embed: {
+                            color: 3447003,
+                            fields: [{
+                                name: `**${name3}**`,
+                                value: `1. ${chaosTeam3.team[0]} \n 2. ${chaosTeam3.team[1]} \n 3. ${chaosTeam3.team[2]} \n 4. ${chaosTeam3.team[3]} \n 5. ${chaosTeam3.team[4]} \n 6. ${chaosTeam3.team[5]} \n 7.  ${chaosTeam3.team[6]} \n 8. ${chaosTeam3.team[7]} \n 9. ${chaosTeam3.team[8]} \n 10. ${chaosTeam3.team[9]}`
+                              },
+                            ]
+                          }
+                        })
+                    }
+
+                    else {
+                        message.channel.send(`There is no one to remove here`);
+
+                        return message.channel.send({embed: {
+                            color: 3447003,
+                            fields: [{
+                                name: `**${name3}**`,
+                                value: `1. ${chaosTeam3.team[0]} \n 2. ${chaosTeam3.team[1]} \n 3. ${chaosTeam3.team[2]} \n 4. ${chaosTeam3.team[3]} \n 5. ${chaosTeam3.team[4]} \n 6. ${chaosTeam3.team[5]} \n 7.  ${chaosTeam3.team[6]} \n 8. ${chaosTeam3.team[7]} \n 9. ${chaosTeam3.team[8]} \n 10. ${chaosTeam3.team[9]}`
+                              },
+                            ]
+                          }
+                        })
+                    }
+                }
+
+                else {
+                    return message.reply(`Please enter '!exped remove <team1 or team2 or team3> <number>'`)
                 }
             }
 
             else {
-                message.reply(`Please enter '!chaos remove <chaos1 or chaos2> <number>'`)
+                return message.reply(`Please enter '!exped remove <team1 or team2 or team3> <number>'`)
             }
             
         }
@@ -794,27 +1044,28 @@ bot.on('message', async (message) => {
                 return message.reply("Hey, you're not the boss of me!");
             }
 
-            if (value === 'chaos1') {
+            if (value === 'team1') {
 
 
-                if (chaosTeam.includes(secondValue)) {
-                    return message.reply(`${secondValue} is already checked in to chaos team 1`)
+                if (chaosTeam.includes(secondValue.join(" "))) {
+                    return message.reply(`${secondValue.join(" ")} is already checked in to Team 1`)
                 }
 
                 else if (chaosTeam.includes(undefined) === false && chaosTeam.length === 10) {
-                    return message.reply(`Chaos team 1 is already full!`)
+                    return message.reply(`Team 1 is already full!`)
                 }
     
                 else {
-                    message.channel.send(`${secondValue} has been added to chaos team 1`)
+                    message.channel.send(`${secondValue.join(" ")} has been added to Team 1`)
     
-                    chaosTeam.push(secondValue);
+
+                    enmap.push(message.guild.id, secondValue.join(" "), 'chaosTeam');
         
-                    message.channel.send({embed: {
+                    return message.channel.send({embed: {
                         color: 3447003,
                         fields: [{
-                            name: "**__Chaos Team 1__**",
-                            value: `1. ${chaosTeam[0]} \n 2. ${chaosTeam[1]} \n 3. ${chaosTeam[2]} \n 4. ${chaosTeam[3]} \n 5. ${chaosTeam[4]} \n 6.${chaosTeam[5]} \n 7.  ${chaosTeam[6]} \n 8. ${chaosTeam[7]} \n 9. ${chaosTeam[8]} \n 10. ${chaosTeam[9]}`
+                            name: "**__Team 1__**",
+                            value: `1. ${chaosTeam[0]} \n 2. ${chaosTeam[1]} \n 3. ${chaosTeam[2]} \n 4. ${chaosTeam[3]} \n 5. ${chaosTeam[4]} \n 6. ${chaosTeam[5]} \n 7.  ${chaosTeam[6]} \n 8. ${chaosTeam[7]} \n 9. ${chaosTeam[8]} \n 10. ${chaosTeam[9]}`
                           },
                         ]
                       }
@@ -822,26 +1073,53 @@ bot.on('message', async (message) => {
                 }
             }
 
-            else if (value === 'chaos2') {
+            else if (value === 'team2') {
 
-                if (chaosTeam2.includes(secondValue)) {
-                    return message.reply(`${secondValue} is already checked in to chaos team 2`)
+                if (chaosTeam2.includes(secondValue.join(" "))) {
+                    return message.reply(`${secondValue.join(" ")} is already checked in to Team 2`)
                 }
 
                 else if (chaosTeam2.includes(undefined) === false && chaosTeam2.length === 10) {
-                    return message.reply(`Chaos team 2 is already full!`)
+                    return message.reply(`Team 2 is already full!`)
                 }
     
                 else {
-                    message.channel.send(`${secondValue} has been added to chaos team 2`)
+                    message.channel.send(`${secondValue.join(" ")} has been added to Team 2`)
     
-                    chaosTeam2.push(secondValue);
+                    enmap.push(message.guild.id, secondValue.join(" "), 'chaosTeam2');
         
-                    message.channel.send({embed: {
+                    return message.channel.send({embed: {
                         color: 3447003,
                         fields: [{
-                            name: "**__Chaos Team 1__**",
-                            value: `1. ${chaosTeam[0]} \n 2. ${chaosTeam[1]} \n 3. ${chaosTeam[2]} \n 4. ${chaosTeam[3]} \n 5. ${chaosTeam[4]} \n 6.${chaosTeam[5]} \n 7.  ${chaosTeam[6]} \n 8. ${chaosTeam[7]} \n 9. ${chaosTeam[8]} \n 10. ${chaosTeam[9]}`
+                            name: "**__Team 2__**",
+                            value: `1. ${chaosTeam2[0]} \n 2. ${chaosTeam2[1]} \n 3. ${chaosTeam2[2]} \n 4. ${chaosTeam2[3]} \n 5. ${chaosTeam2[4]} \n 6. ${chaosTeam2[5]} \n 7.  ${chaosTeam2[6]} \n 8. ${chaosTeam2[7]} \n 9. ${chaosTeam2[8]} \n 10. ${chaosTeam2[9]}`
+                          },
+                        ]
+                      }
+                    })
+                }
+            }
+
+            else if (value === 'team3') {
+
+                if (chaosTeam3.team.includes(secondValue.join(" "))) {
+                    return message.reply(`${secondValue.join(" ")} is already checked in to ${name3}`)
+                }
+
+                else if (chaosTeam3.team.includes(undefined) === false && chaosTeam3.team.length === 10) {
+                    return message.reply(`${name3} is already full!`)
+                }
+    
+                else {
+                    message.channel.send(`${secondValue.join(" ")} has been added to ${name3}`)
+    
+                    enmap.push(message.guild.id, secondValue.join(" "), 'chaosTeam3.team');
+        
+                    return message.channel.send({embed: {
+                        color: 3447003,
+                        fields: [{
+                            name: `**${name3}**`,
+                            value: `1. ${chaosTeam3.team[0]} \n 2. ${chaosTeam3.team[1]} \n 3. ${chaosTeam3.team[2]} \n 4. ${chaosTeam3.team[3]} \n 5. ${chaosTeam3.team[4]} \n 6. ${chaosTeam3.team[5]} \n 7.  ${chaosTeam3.team[6]} \n 8. ${chaosTeam3.team[7]} \n 9. ${chaosTeam3.team[8]} \n 10. ${chaosTeam3.team[9]}`
                           },
                         ]
                       }
@@ -850,16 +1128,14 @@ bot.on('message', async (message) => {
             }
 
             else {
-                message.reply(`Please enter '!chaos add <chaos1 or chaos2><display name>`)
+                return message.reply(`Please enter '!exped add <team1 or team2 or team3> <display name>`)
             }
-
-            
-
-            
         }
+    
         
         // clearing teams
         else if (prop === "clear") {
+            
             const adminRole = message.guild.roles.find(role => role.name === guildConf.adminRole);
 
             if(!adminRole) return message.reply("Administrator Role Not Found");
@@ -870,19 +1146,25 @@ bot.on('message', async (message) => {
             }
 
             if (value === '1') {
-                chaosTeam = [];
+                enmap.set(message.guild.id, [], 'chaosTeam');
 
-                message.channel.send(`Chaos team 1 has been cleared.`)
+                return message.channel.send(`Team 1 has been cleared.`)
             }
 
             else if (value === '2') {
-                chaosTeam2 = [];
+                enmap.set(message.guild.id, [], 'chaosTeam2');
 
-                message.channel.send(`Chaos team 2 has been cleared`)
+                return message.channel.send(`Team 2 has been cleared`)
+            }
+            
+            else if (value === '3') {
+                enmap.set(message.guild.id, [], 'chaosTeam3');
+
+                return message.channel.send(`${name3} has been cleared`)
             }
 
             else {
-                message.reply(`Please enter which team you'd like to clear (1 or 2)`)
+                return message.reply(`Please enter which team you'd like to clear (1 or 2 or 3)`)
             }
 
             
@@ -891,12 +1173,14 @@ bot.on('message', async (message) => {
         // viewing teams
         else if (prop === "view") {
 
+            enmap.ensure(message.guild.id, defaultSettings);
+
             if (value === '1') {
-                message.channel.send({embed: {
+                return message.channel.send({embed: {
                     color: 3447003,
                     fields: [{
-                        name: "**__Chaos Team 1__**",
-                        value: `1. ${chaosTeam[0]} \n 2. ${chaosTeam[1]} \n 3. ${chaosTeam[2]} \n 4. ${chaosTeam[3]} \n 5. ${chaosTeam[4]} \n 6.${chaosTeam[5]} \n 7.  ${chaosTeam[6]} \n 8. ${chaosTeam[7]} \n 9. ${chaosTeam[8]} \n 10. ${chaosTeam[9]}`
+                        name: "**__Team 1__**",
+                        value: `1. ${chaosTeam[0]} \n 2. ${chaosTeam[1]} \n 3. ${chaosTeam[2]} \n 4. ${chaosTeam[3]} \n 5. ${chaosTeam[4]} \n 6. ${chaosTeam[5]} \n 7.  ${chaosTeam[6]} \n 8. ${chaosTeam[7]} \n 9. ${chaosTeam[8]} \n 10. ${chaosTeam[9]}`
                       },
                     ]
                   }
@@ -904,23 +1188,133 @@ bot.on('message', async (message) => {
             }
 
             else if (value === '2') {
-                message.channel.send({embed: {
+                return message.channel.send({embed: {
                     color: 3447003,
                     fields: [{
-                        name: "**__Chaos Team 2__**",
-                        value: `1. ${chaosTeam2[0]} \n 2. ${chaosTeam2[1]} \n 3. ${chaosTeam2[2]} \n 4. ${chaosTeam2[3]} \n 5. ${chaosTeam2[4]} \n 6.${chaosTeam2[5]} \n 7.  ${chaosTeam2[6]} \n 8. ${chaosTeam2[7]} \n 9. ${chaosTeam2[8]} \n 10. ${chaosTeam2[9]}`
+                        name: "**__Team 2__**",
+                        value: `1. ${chaosTeam2[0]} \n 2. ${chaosTeam2[1]} \n 3. ${chaosTeam2[2]} \n 4. ${chaosTeam2[3]} \n 5. ${chaosTeam2[4]} \n 6. ${chaosTeam2[5]} \n 7.  ${chaosTeam2[6]} \n 8. ${chaosTeam2[7]} \n 9. ${chaosTeam2[8]} \n 10. ${chaosTeam2[9]}`
                       },
+                    ]
+                  }
+                })
+            }
+            else if (value === '3') {
+
+            
+            return message.channel.send({embed: {
+                color: 3447003,
+                fields: [{
+                    name: `**${name3}**`,
+                    value: `1. ${chaosTeam3.team[0]} \n 2. ${chaosTeam3.team[1]} \n 3. ${chaosTeam3.team[2]} \n 4. ${chaosTeam3.team[3]} \n 5. ${chaosTeam3.team[4]} \n 6. ${chaosTeam3.team[5]} \n 7.  ${chaosTeam3.team[6]} \n 8. ${chaosTeam3.team[7]} \n 9. ${chaosTeam3.team[8]} \n 10. ${chaosTeam3.team[9]}`
+                  },
+                ]
+              }
+            })
+        }
+            
+        
+
+            else if (value === 'all') {
+                return message.channel.send({embed: {
+                    color: 3447003,
+                    fields: [
+                        {
+                        name: "**__Team 1__**",
+                        value: `1. ${chaosTeam[0]} \n 2. ${chaosTeam[1]} \n 3. ${chaosTeam[2]} \n 4. ${chaosTeam[3]} \n 5. ${chaosTeam[4]} \n 6. ${chaosTeam[5]} \n 7.  ${chaosTeam[6]} \n 8. ${chaosTeam[7]} \n 9. ${chaosTeam[8]} \n 10. ${chaosTeam[9]}`
+                        },
+                        {
+                        name: "**__Team 2__**",
+                        value: `1. ${chaosTeam2[0]} \n 2. ${chaosTeam2[1]} \n 3. ${chaosTeam2[2]} \n 4. ${chaosTeam2[3]} \n 5. ${chaosTeam2[4]} \n 6. ${chaosTeam2[5]} \n 7.  ${chaosTeam2[6]} \n 8. ${chaosTeam2[7]} \n 9. ${chaosTeam2[8]} \n 10. ${chaosTeam2[9]}`
+                        },
+                        {
+                        name: `**${name3}**`,
+                        value: `1. ${chaosTeam3.team[0]} \n 2. ${chaosTeam3.team[1]} \n 3. ${chaosTeam3.team[2]} \n 4. ${chaosTeam3.team[3]} \n 5. ${chaosTeam3.team[4]} \n 6. ${chaosTeam3.team[5]} \n 7.  ${chaosTeam3.team[6]} \n 8. ${chaosTeam3.team[7]} \n 9. ${chaosTeam3.team[8]} \n 10. ${chaosTeam3.team[9]}`
+                        },
                     ]
                   }
                 })
             }
 
             else {
-                message.reply(`Please enter which team you'd like to view (1 or 2)`)
+                return message.reply(`Please enter which team you'd like to view (1 or 2 or 3)`)
+        }
+    }
+    
+
+        // swapping members
+
+        else if (prop === 'swap') {
+            const adminRole = message.guild.roles.find(role => role.name === guildConf.adminRole);
+
+            if(!adminRole) return message.reply("Administrator Role Not Found");
+        
+        
+            if(!message.member.roles.has(adminRole.id)) {
+                return message.reply("Hey, you're not the boss of me!");
             }
-           
+
+            let member1 = chaosTeam[value-1];
+
+            let member2 = chaosTeam2[secondValue-1];
+
+
+            if (member1 === undefined && member2 !== undefined) {
+                message.reply(`${member2} has been moved to Team 1`);
+
+                enmap.push(message.guild.id, member2, 'chaosTeam');
+
+                enmap.remove(message.guild.id, member2, 'chaosTeam2');
+            }
+
+            else if (member2 === undefined && member1 !== undefined) {
+                message.reply(`${member1} has been moved to Team 2`);
+
+                enmap.push(message.guild.id, member1, 'chaosTeam2');
+
+                enmap.remove(message.guild.id, member1, 'chaosTeam');
+
+                
+            }
+
+            else if (member2 === undefined && member1 === undefined) {
+                return message.reply(`There are no one in these positions!`)
+            }
+
+            else {
+                message.reply (`${member1} and ${member2} have been swapped.`)
+
+                enmap.push(message.guild.id, member1, 'chaosTeam2');
+
+                enmap.remove(message.guild.id, member1, 'chaosTeam');
+
+                enmap.push(message.guild.id, member2, 'chaosTeam');
+
+                enmap.remove(message.guild.id, member2, 'chaosTeam2');
+
+                
+            }
+
+            
         }
 
+        // changing team title
+
+        else if (prop === 'edit') {
+            const adminRole = message.guild.roles.find(role => role.name === guildConf.adminRole);
+
+            if(!adminRole) return message.reply("Administrator Role Not Found");
+        
+        
+            if(!message.member.roles.has(adminRole.id)) {
+                return message.reply("Hey, you're not the boss of me!");
+            }
+
+            if (value === 'team3') {
+
+                enmap.set(message.guild.id, secondValue.join(" "), 'chaosTeam3.name');
+                return message.reply(`You have changed Team 3's name to ${secondValue.join(" ")}`)
+            }
+        }
         // chaos help
         else if (prop === 'help') {
 
@@ -928,11 +1322,252 @@ bot.on('message', async (message) => {
                 color: 3447003,
                 fields: [{
                     name: "**__Public Commands__**",
-                    value: `**!chaos checkin <1 or 2>** : check yourself into chaos team 1/2. If chaos team 1 is full, automatically checks you in chaos team 2. Checks you in chaos team 1 if no number is typed. \n **!chaos checkout** : remove yourself from chaos team \n **!chaos view <1 or 2>** : view chaos team 1 or 2`
+                    value: `**!exped checkin <1 or 2 or 3>** : check yourself into team 1/2/3. If team 1 is full, checks you in team 2. If team 2 is full, checks you in to team 3. Checks you in chaos team 1 if no number is typed. \n **!exped checkout** : remove yourself from team \n **!exped view <1 or 2 or 3>** : view team 1/2/3 \n **!exped view all** : view all teams`
                   },
                   {
                     name: `**__GM Commands__**`,
-                    value: `**!chaos clear <1 or 2>** : clears entire chaos team 1 or 2\n **!chaos add <chaos1 or chaos2><user>** : adds user to chaos team 1 or 2 (**important**: user must be exact same spelling as their display name or else it will double register if user checks in themselves) \n **!chaos remove <chaos1 or chaos2><number>** : removes member of that number from chaos team 1 or 2`
+                    value: `**!exped clear <1 or 2 or 3>** : clears entire team 1/2/3 \n **!exped add <team1 or team2 or team3> <user>** : adds user to team 1/2/3 (**important**: user must be exact same spelling as their display name or else it will double register if user checks in themselves) \n **!exped remove <team1 or team2 or team3> <number>** : removes member of that number from team 1/2/3 \n **!exped swap <number> <number>** : swaps numbered player from team #1 with numbered player from team #2. If any numbers are empty, just simply moves player over.`
+                  }
+                ]
+              }
+            })
+
+            return message.reply(`Check your DM!`)
+        }
+
+        else {
+            return message.reply(`Please enter !exped help`)
+        }
+    }
+
+
+
+    else {
+        return message.reply(`This command is not available in this channel`)
+    }
+}
+
+
+    if (command === 'gf') {
+        const [prop, ...value] = args;
+
+        let member = message.member.displayName;
+
+        let guildFort = enmap.get(message.guild.id, 'guildFort');
+
+        // checking in
+        if (prop === "checkin") {
+
+            
+
+                if (guildFort.includes(undefined) === false && guildFort.length === 20) {
+
+                    message.reply(`Guild fort is full`);
+    
+                    message.channel.send({embed: {
+                        color: 3447003,
+                        fields: [{
+                            name: "**__Guild Fort__**",
+                            value: `1. ${guildFort[0]} \n 2. ${guildFort[1]} \n 3. ${guildFort[2]} \n 4. ${guildFort[3]} \n 5. ${guildFort[4]} \n 6. ${guildFort[5]} \n 7.  ${guildFort[6]} \n 8. ${guildFort[7]} \n 9. ${guildFort[8]} \n 10. ${guildFort[9]} \n 11. ${guildFort[10]} \n 12. ${guildFort[11]} \n 13. ${guildFort[12]} \n 14. ${guildFort[13]} \n 15. ${guildFort[14]} \n 16. ${guildFort[15]} \n 17.  ${guildFort[16]} \n 18. ${guildFort[17]} \n 19. ${guildFort[18]} \n 20. ${guildFort[19]}`
+                          },
+                        ]
+                      }
+                    })
+                }
+                
+                else if (guildFort.includes(member)) {
+                    return message.reply(`You're already checked in!`)
+                }
+    
+                else {
+    
+                enmap.push(message.guild.id, member, 'guildFort');
+            
+                message.reply(`you just checked in to Guild Fort.`)
+    
+                message.channel.send({embed: {
+                    color: 3447003,
+                    fields: [{
+                        name: "**__Guild Fort__**",
+                        value: `1. ${guildFort[0]} \n 2. ${guildFort[1]} \n 3. ${guildFort[2]} \n 4. ${guildFort[3]} \n 5. ${guildFort[4]} \n 6. ${guildFort[5]} \n 7.  ${guildFort[6]} \n 8. ${guildFort[7]} \n 9. ${guildFort[8]} \n 10. ${guildFort[9]} \n 11. ${guildFort[10]} \n 12. ${guildFort[11]} \n 13. ${guildFort[12]} \n 14. ${guildFort[13]} \n 15. ${guildFort[14]} \n 16. ${guildFort[15]} \n 17.  ${guildFort[16]} \n 18. ${guildFort[17]} \n 19. ${guildFort[18]} \n 20. ${guildFort[19]}`
+                      },
+                    ]
+                  }
+                })
+            }
+        }
+
+        // checking out
+        else if (prop === "checkout") {
+        
+
+            if (guildFort.includes(member)) {
+
+
+                enmap.remove(message.guild.id, member, 'guildFort');
+                
+
+                message.reply(`you have been removed from Guild Fort.`);
+    
+                message.channel.send({embed: {
+                    color: 3447003,
+                    fields: [{
+                        name: "**__Guild Fort__**",
+                        value: `1. ${guildFort[0]} \n 2. ${guildFort[1]} \n 3. ${guildFort[2]} \n 4. ${guildFort[3]} \n 5. ${guildFort[4]} \n 6. ${guildFort[5]} \n 7.  ${guildFort[6]} \n 8. ${guildFort[7]} \n 9. ${guildFort[8]} \n 10. ${guildFort[9]} \n 11. ${guildFort[10]} \n 12. ${guildFort[11]} \n 13. ${guildFort[12]} \n 14. ${guildFort[13]} \n 15. ${guildFort[14]} \n 16. ${guildFort[15]} \n 17.  ${guildFort[16]} \n 18. ${guildFort[17]} \n 19. ${guildFort[18]} \n 20. ${guildFort[19]}`
+                      },
+                    ]
+                  }
+                })
+            }
+
+            else {
+                message.reply(`You aren't checked in.`)
+            }
+
+        }
+
+        // remove member
+        else if (prop === 'remove') {
+            const adminRole = message.guild.roles.find(role => role.name === guildConf.adminRole);
+
+            if(!adminRole) return message.reply("Administrator Role Not Found");
+        
+        
+            if(!message.member.roles.has(adminRole.id)) {
+                return message.reply("Hey, you're not the boss of me!");
+            }
+
+            
+
+                if (value) {
+
+                    let value2 = guildFort[value-1];
+                
+                    if (value2 !== undefined) {
+                       
+                        message.channel.send(`${value2} has been removed from Guild Fort.`)
+
+                        enmap.remove(message.guild.id, value2, 'guildFort');
+    
+                        message.channel.send({embed: {
+                            color: 3447003,
+                            fields: [{
+                                name: "**__Guild Fort__**",
+                                value: `1. ${guildFort[0]} \n 2. ${guildFort[1]} \n 3. ${guildFort[2]} \n 4. ${guildFort[3]} \n 5. ${guildFort[4]} \n 6. ${guildFort[5]} \n 7.  ${guildFort[6]} \n 8. ${guildFort[7]} \n 9. ${guildFort[8]} \n 10. ${guildFort[9]} \n 11. ${guildFort[10]} \n 12. ${guildFort[11]} \n 13. ${guildFort[12]} \n 14. ${guildFort[13]} \n 15. ${guildFort[14]} \n 16. ${guildFort[15]} \n 17.  ${guildFort[16]} \n 18. ${guildFort[17]} \n 19. ${guildFort[18]} \n 20. ${guildFort[19]}`
+                              },
+                            ]
+                          }
+                        })
+                    }
+
+                    else {
+                        message.channel.send(`There is no one to remove here.`)
+
+                        message.channel.send({embed: {
+                            color: 3447003,
+                            fields: [{
+                                name: "**__Guild Fort__**",
+                                value: `1. ${guildFort[0]} \n 2. ${guildFort[1]} \n 3. ${guildFort[2]} \n 4. ${guildFort[3]} \n 5. ${guildFort[4]} \n 6. ${guildFort[5]} \n 7.  ${guildFort[6]} \n 8. ${guildFort[7]} \n 9. ${guildFort[8]} \n 10. ${guildFort[9]} \n 11. ${guildFort[10]} \n 12. ${guildFort[11]} \n 13. ${guildFort[12]} \n 14. ${guildFort[13]} \n 15. ${guildFort[14]} \n 16. ${guildFort[15]} \n 17.  ${guildFort[16]} \n 18. ${guildFort[17]} \n 19. ${guildFort[18]} \n 20. ${guildFort[19]}`
+                              },
+                            ]
+                          }
+                        })
+                    }
+                }
+
+                else {
+                    message.reply(`Please enter '!chaos remove <chaos1 or chaos2> <number>'`);
+                }
+        }
+        
+        // add member
+        else if (prop === 'add') {
+            const adminRole = message.guild.roles.find(role => role.name === guildConf.adminRole);
+    
+            if(!adminRole) return message.reply("Administrator Role Not Found");
+            
+            
+            if(!message.member.roles.has(adminRole.id)) {
+                return message.reply("Hey, you're not the boss of me!");
+            }
+    
+            
+    
+    
+                if (guildFort.includes(value.join(" "))) {
+                        return message.reply(`${value.join(" ")} is already checked in to Guild Fort`)
+                }
+    
+                else if (guildFort.includes(undefined) === false && guildFort.length === 20) {
+                        return message.reply(`Guild Fort is already full!`)
+                }
+        
+                else {
+                    message.channel.send(`${value.join(" ")} has been added to Guild Fort`)
+        
+    
+                    enmap.push(message.guild.id, value.join(" "), 'guildFort');
+            
+                    message.channel.send({embed: {
+                        color: 3447003,
+                        fields: [{
+                            name: "**__Guild Fort__**",
+                            value: `1. ${guildFort[0]} \n 2. ${guildFort[1]} \n 3. ${guildFort[2]} \n 4. ${guildFort[3]} \n 5. ${guildFort[4]} \n 6. ${guildFort[5]} \n 7.  ${guildFort[6]} \n 8. ${guildFort[7]} \n 9. ${guildFort[8]} \n 10. ${guildFort[9]} \n 11. ${guildFort[10]} \n 12. ${guildFort[11]} \n 13. ${guildFort[12]} \n 14. ${guildFort[13]} \n 15. ${guildFort[14]} \n 16. ${guildFort[15]} \n 17.  ${guildFort[16]} \n 18. ${guildFort[17]} \n 19. ${guildFort[18]} \n 20. ${guildFort[19]}`
+                          },
+                        ]
+                      }
+                    })
+                }
+        }
+
+        // clear team
+        else if (prop === "clear") {
+            
+            const adminRole = message.guild.roles.find(role => role.name === guildConf.adminRole);
+
+            if(!adminRole) return message.reply("Administrator Role Not Found");
+        
+        
+            if(!message.member.roles.has(adminRole.id)) {
+                return message.reply("You're not an admin, sorry!");
+            }
+
+            
+            enmap.set(message.guild.id, [], 'guildFort');
+
+            message.channel.send(`Guild Fort has been cleared.`)
+
+            
+        }
+
+        // view team
+        else if (prop === "view") {
+
+            enmap.ensure(message.guild.id, defaultSettings);
+
+          
+            message.channel.send({embed: {
+                color: 3447003,
+                fields: [{
+                    name: "**__Guild Fort__**",
+                    value: `1. ${guildFort[0]} \n 2. ${guildFort[1]} \n 3. ${guildFort[2]} \n 4. ${guildFort[3]} \n 5. ${guildFort[4]} \n 6. ${guildFort[5]} \n 7.  ${guildFort[6]} \n 8. ${guildFort[7]} \n 9. ${guildFort[8]} \n 10. ${guildFort[9]} \n 11. ${guildFort[10]} \n 12. ${guildFort[11]} \n 13. ${guildFort[12]} \n 14. ${guildFort[13]} \n 15. ${guildFort[14]} \n 16. ${guildFort[15]} \n 17.  ${guildFort[16]} \n 18. ${guildFort[17]} \n 19. ${guildFort[18]} \n 20. ${guildFort[19]}`
+                  },
+                ]
+              }
+            })
+        }
+
+        else if (prop === 'help') {
+
+            message.author.send({embed: {
+                color: 3447003,
+                fields: [{
+                    name: "**__Public Commands__**",
+                    value: `**!gf checkin** : check yourself into guild fort. \n **!gf checkout** : remove yourself from Guild Fort \n **!gf view** : view Guild Fort`
+                  },
+                  {
+                    name: `**__GM Commands__**`,
+                    value: `**!gf clear** : clears Guild Fort team\n **!gf add <user>** : adds user to Guild Fort (**important**: user must be exact same spelling as their display name or else it will double register if user checks in themselves) \n **!gf remove <number>** : removes member of that number from Guild Fort`
                   }
                 ]
               }
@@ -942,11 +1577,9 @@ bot.on('message', async (message) => {
         }
 
         else {
-            message.reply(`Please enter !chaos help`)
+            message.reply(`Please enter !gf help`)
         }
-
     }
-
     
     // setting configurations command
     if(command === "setconf") {
@@ -993,30 +1626,34 @@ bot.on('message', async (message) => {
         }
 
         // if invalid key is entered
-        if(!bot.settings.has(message.guild.id, prop)) {
+        if(!enmap.has(message.guild.id, prop)) {
             return message.reply("This key is not in the configuration. Type !showconf to see your current keys.")
             .catch(console.error);
         }
 
+        if (prop === 'team1' || prop === 'team2' || prop === 'team3') {
+            return message.reply(`You cannot set these configurations. Use the '!chaos' command`)
+        }
+
+        
 
         if (prop !== 'banquetTime') {
 
-        // if blank value is entered
-        if (prop === undefined ) {
-            return message.reply("You cannot enter a blank key. Type '!setconf help' for configuration help, or '!showconf' for your current configurations.")
-            .catch(console.error);
-        }
+            // if blank value is entered
+            if (prop === undefined ) {
+                return message.reply("You cannot enter a blank key. Type '!setconf help' for configuration help, or '!showconf' for your current configurations.")
+                .catch(console.error);
+            }
 
-        if (value === undefined) {
-            return message.reply(`You cannot enter a blank value. Type '!setconf help' for configuration help, or '!showconf' for your current configurations.`)
-        }
-
-        // configurations help
-       
-
-        bot.settings.set(message.guild.id, value.join(" "), prop);
+            else if (value === undefined) {
+                return message.reply(`You cannot enter a blank value. Type '!setconf help' for configuration help, or '!showconf' for your current configurations.`)
+            }
+                enmap.ensure(message.guild.id, defaultSettings)
+            
+                enmap.set(message.guild.id, value.join(" "), prop);
+            
+                message.channel.send(`Guild configuration item ${prop} has been changed to:\n\`${value.join(" ")}\``);
         
-        message.channel.send(`Guild configuration item ${prop} has been changed to:\n\`${value.join(" ")}\``);
         }
        
         //settings banquet configs
@@ -1039,7 +1676,7 @@ bot.on('message', async (message) => {
 
             else {
 
-                bot.settings.set(message.guild.id, value.join(" "), 'banquetTime');
+                enmap.set(message.guild.id, value.join(" "), 'banquetTime');
 
                 message.channel
                 .send(`Your banquet time has been changed to ${value.join(" ")}.`)
@@ -1050,6 +1687,8 @@ bot.on('message', async (message) => {
     
             } 
         }
+
+        
     }
     
 
@@ -1072,7 +1711,6 @@ bot.on('message', async (message) => {
         \`\`\`${configPropsJoin}\`\`\``).catch(console.error);
     }
 
-
     // resets configurations to default
     if(command === 'resetconf') {
 
@@ -1084,7 +1722,7 @@ bot.on('message', async (message) => {
           return message.reply("You're not an admin, sorry!");
         }
 
-        bot.settings.delete(message.guild.id);
+        enmap.delete(message.guild.id);
         message.channel.send(`You're configurations have been reset to default settings`)
 
     }
