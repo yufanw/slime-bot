@@ -122,3 +122,8 @@
 - **fortChannel** : general
 
 - **checkInChannel** : general
+
+
+### Discord Server for Updates
+
+**If you are using this bot, please join this discord server for Slime Bot Updates** : https://discord.gg/rkwNAxj
