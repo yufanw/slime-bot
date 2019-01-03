@@ -217,26 +217,7 @@ bot.on('message', async (message) => {
     if (command === 'deleteconf') {
         
     }
-
-    // stupid commands
-    if (command === 'disarray') {
-        message.channel.send('Bodana stfu')
-    }
-    if (command === 'bobo') {
-        message.channel.send('sit on my face')
-    }
-    if (command === 'cule') {
-        message.channel.send('send nudes')
-    }
-    if (command === 'golden') {
-        message.channel.send('check in and do GD plz!')
-    }
-    if (command === 'hana') {
-        message.channel.send(':tongue::sweat_drops::sweat_drops:')
-    }
-    if (command === 'cohv') {
-        message.channel.send('litty mctitty')
-    }
+    
     // fusing cost calculator
     if(command === 'fuse') {
 
@@ -754,6 +735,7 @@ bot.on('message', async (message) => {
             }
 
             else {  
+                // if team 1 is full
                 if (team1.team.includes(undefined) === false && team1.team.length === 10) {
 
                     if (team2.team.includes(member) || team3.team.includes(member)) {
@@ -793,13 +775,14 @@ bot.on('message', async (message) => {
                     }
                     }
                     
+                // if team 2 is full
                 else if(team2.team.includes(undefined) === false && team2.team.length === 10) {
 
                     if (team1.team.includes(member) || team3.team.includes(member)) {
                         return message.reply(`You are already checked in`)
                     }
 
-                    else if (team1.team.length !== 10) {
+                    else if (team1.team.includes(undefined) && team1.team.length !== 10) {
                         enmap.push(message.guild.id, member, 'team1.team');
 
                         message.reply(`${name2} is full, you have been added to ${name1}`);
