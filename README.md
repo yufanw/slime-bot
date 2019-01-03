@@ -78,6 +78,28 @@
 
 - Now go edit your configs!
   
+### Keys and their functionalities
+
+- **adminRole** : Only people with this role can use admin commmands such as !setconf. Defaults to 'GM', so when using the bot for the first time, please assign yourself the role of 'GM' to start using. You can change this to your liking later.
+
+- **privateMessage**: private DM sent to new guild members joining discord.
+
+- **expoChannel**: channel for expedition reminders.
+
+- **expoMessage**: this message will be sent to expoChannel **15 minutes** prior to expeditions. 
+
+- **banquetTime**: the time you want me to remind your guild about banquet.
+
+- **banquetChannel**: channel for banquet reminders.
+
+- **banquetMessage**: message sent to banquetChannel.
+
+- **fortMessage** : message sent to fortChannel.
+
+- **fortChannel** : channel for guild fort reminders.
+
+- **checkInChannel** : channel to use !chaos command in.
+
 
 ### Default Configurations
 
@@ -100,26 +122,3 @@
 - **fortChannel** : general
 
 - **checkInChannel** : general
-
-                 
-### Keys and their functionalities
-
-- **adminRole** : name of admin role. Only people with this role can use !setconf. Defaults to 'GM', so when using the bot for the first time, please assign yourself the role of 'GM' to start using.
-
-- **privateMessage**: private DM sent to new guild members joining discord.
-
-- **expoChannel**: channel for expedition reminders.
-
-- **expoMessage**: this message will be sent to expoChannel **15 minutes** prior to expeditions. 
-
-- **banquetTime**: the time you want me to remind your guild about banquet.
-
-- **banquetChannel**: channel for banquet reminders.
-
-- **banquetMessage**: message sent to banquetChannel.
-
-- **fortMessage** : message sent to fortChannel.
-
-- **fortChannel** : channel for guild fort reminders.
-
-- **checkInChannel** : channel to use !chaos command in.
