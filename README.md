@@ -98,7 +98,7 @@
 
 - **fortChannel** : channel for guild fort reminders.
 
-- **checkInChannel** : channel to use !chaos command in.
+- **checkInChannel** : channel to use !team command in.
 
 
 ### Default Configurations
