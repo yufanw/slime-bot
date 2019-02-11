@@ -17,14 +17,11 @@
 
 - Greets new guild members. Customize private welcome greeting.
 
-- !fuse command to help with fusing - includes cost and data (treasure pulls, powder, equips)
+- !fuse command to help with fusing - includes cost and data (treasure pulls, powder, equips, potentials, pba ranges)
 
 - !jewel command for jewel data.
 
 - !team command for organizing expeditions.
-
-- !gf command for organizing guild fort.
-
 
 ## Commands: 
 
@@ -33,8 +30,6 @@
 - !jewel - jewel data
 
 - !team - organizing expeditions
-
-- !gf - organizing guild forts
 
 - !help - shows bot's commands.
 
