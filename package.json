@@ -2,6 +2,9 @@
   "name": "slime-bot",
   "version": "1.0.0",
   "description": "discord bot for maplestory m",
+  "engines": {
+    "node": "8.12.0"
+  },
   "main": "app.js",
   "scripts": {
     "start": "forever start app.js",
