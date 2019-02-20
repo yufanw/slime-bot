@@ -348,7 +348,7 @@ bot.on('message', async (message) => {
                   },
                   {
                       name: "**__Other Fusing Commands__**",
-                      value: "**!fuse data**: fusing data \n **!fuse treasure**: treasure pull data \n **!fuse pba**: shows weapon pba ranges \n **!fuse potential**: shows equip potentials" 
+                      value: "**!fuse data** : fusing data \n **!fuse treasure** : treasure pull data \n **!fuse pba** : shows weapon pba ranges \n **!fuse potential** : shows equip potentials \n **!fuse exalt** : shows exalt stats" 
                   }
 
                 ],
@@ -407,6 +407,11 @@ bot.on('message', async (message) => {
 
         else if (fuseItem === 'potential') {
             return message.reply(`https://imgur.com/a/zWIgBp9?`)
+        }
+
+        else if (fuseItem === 'exalt') {
+
+            return message.reply(`https://imgur.com/a/Qp1eu9B`)
         }
 
         // default
@@ -625,7 +630,7 @@ bot.on('message', async (message) => {
             color: 3447003,
             fields: [{
                 name: "**__Public Commands__**",
-                value: "**!fuse** : help with fusing costs \n **!fuse data** : fusing data \n **!fuse treasure** : treasure pull fusing data \n **!jewel** : jewel data \n **!team** : expedition check-ins (can only be used in checkInChannel config) \n **!help** : list of commands"
+                value: "**!fuse** : fusing calc, cost, and various data \n **!jewel** : jewel data \n **!team** : expedition check-ins (can only be used in checkInChannel config) \n **!help** : list of commands"
               },
               {
                   name: "**__Admin Commands__**",
