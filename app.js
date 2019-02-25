@@ -8,6 +8,8 @@ const bot = new Commando.Client({
 const config = require('./config.json')
 const Enmap = require('enmap');
 const fs = require('fs');
+const CronJob = require('cron').CronJob;
+const cron = require('node-cron');
 
 //registering commands
 bot.registry
@@ -58,23 +60,106 @@ defaultSettings = {
 
 
 // This loop reads the /events/ folder and attaches each event file to the appropriate event.
-fs.readdir("./events/", (err, files) => {
-    if (err) return console.error(err);
-    files.forEach(file => {
-      // If the file is not a JS file, ignore it (thanks, Apple)
-      if (!file.endsWith(".js")) return;
-      // Load the event file itself
-      const event = require(`./events/${file}`);
-      // Get just the event name from the file name
-      let eventName = file.split(".")[0];
-      // super-secret recipe to call events with all their proper arguments *after* the `client` var.
-      // without going into too many details, this means each event will be called with the client argument,
-      // followed by its "normal" arguments, like message, member, etc etc.
-      // This line is awesome by the way. Just sayin'.
-      bot.on(eventName, event.bind(null, bot));
-      delete require.cache[require.resolve(`./events/${file}`)];
-    });
-  });
+// fs.readdir("./events/", (err, files) => {
+//     if (err) return console.error(err);
+//     files.forEach(file => {
+   
+//       if (!file.endsWith(".js")) return;
+      
+//       const event = require(`./events/${file}`);
+     
+//       let eventName = file.split(".")[0];
+     
+//       bot.on(eventName, event.bind(null, bot));
+//     });
+//   });
+
+
+
+
+bot.on('ready', () => {
+    console.log(`Serving ${bot.guilds.size} servers`);
+    console.log('Ready boss!');
+
+    bot.guilds.forEach((guild) => {
+
+        enmap.ensure(guild.id, defaultSettings);
+        let banquetTime = enmap.get(guild.id, 'banquetTime');
+            
+             // NA CRONJOBS //
+            
+            // expedition reminder
+            
+            cron.schedule('00 45 11,19 * * *', () => {
+            
+            
+                    let expoChannel = enmap.get(guild.id, "expoChannel");
+                        
+                    let expoMessage = enmap.get(guild.id, "expoMessage");
+            
+                        
+                    guild.channels
+                        .find((channel) => {
+                            if (channel.name === expoChannel) {
+                                channel
+                                    .send(expoMessage)
+                                    .catch(console.error);
+                            } else {
+                                return;
+                            }
+                        })
+            
+                });
+
+               
+            // exped auto clear
+            cron.schedule('00 01 13,21 * * *', () => {
+        
+                enmap.ensure(guild.id, defaultSettings);
+        
+                enmap.set(guild.id, [], 'team1.team');
+                enmap.set(guild.id, [], 'team2.team');
+                enmap.set(guild.id, [], 'team3.team');
+            });
+
+             // guild fort reminder
+            cron.schedule('00 45 20 * * *', () => {
+       
+                let fortChannel = enmap.get(guild.id, "fortChannel");
+                
+                let fortMessage = enmap.get(guild.id, "fortMessage");
+        
+                    
+                guild.channels
+                .find((channel) => {
+                    if (channel.name === fortChannel) {
+                        channel
+                            .send(fortMessage)
+                            .catch(console.error);
+                    } else {
+                        return;
+                    }
+                })
+            });
+
+         
+            // banquet reminder
+            cron.schedule(`00 ${banquetTime} * * *`, () => {
+        
+                let banquetChannel = enmap.get(guild.id, 'banquetChannel');
+                let banquetMessage = enmap.get(guild.id, 'banquetMessage');
+    
+                guild.channels
+                    .find(channel => channel.name === banquetChannel)
+                    .send(banquetMessage)
+                    .catch(console.error);
+            });
+
+          
+        })
+    })
+
+
 
 
 // logs unhandled rejections

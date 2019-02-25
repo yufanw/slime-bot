@@ -89,17 +89,6 @@ class SetConf extends commando.Command{
                 return message.reply(`You cannot enter a blank value. Type '!setconf help' for configuration help, or '!showconf' for your current configurations.`)
             }
 
-            else if (prop === 'region') {
-                enmap.ensure(message.guild.id, defaultSettings)
-            
-                enmap.set(message.guild.id, value.join(" ").toLowerCase(), prop);
-            
-                return message.channel
-                    .send(`Guild configuration item **${prop}** has been changed to:\n\`${value.join(" ").toLowerCase()}\``)
-                    .catch(err => console.err(err))
-                    .then(process.exit);
-            }
-
             else if (prop === 'expoChannel' || prop === 'banquetChannel' || prop === 'fortChannel' || prop === 'checkInChannel') {
                 enmap.ensure(message.guild.id, defaultSettings)
             

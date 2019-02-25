@@ -1,17 +1,18 @@
 const CronJob = require('cron').CronJob;
 
 module.exports = (bot) => {
+
     console.log(`Serving ${bot.guilds.size} servers`);
     console.log('Ready boss!');
 
     bot.guilds.forEach((guild) => {
 
-        enmap.ensure(guild.id, defaultSettings);
+        
         let region = enmap.get(guild.id, 'region');
         let banquetTime = enmap.get(guild.id, 'banquetTime');
             
         // NA CRONJOBS //
-        if (region === 'na') {
+        if (region == 'na') {
             
             // expedition reminder
             
@@ -78,12 +79,11 @@ module.exports = (bot) => {
                     .find(channel => channel.name === banquetChannel)
                     .send(banquetMessage)
                     .catch(console.error);
-            }
-            , null, true, 'America/Los_Angeles');
-            }
+            }, null, true, 'America/Los_Angeles');
+        }
 
         // EU CRONJOBS //
-        if (region === 'eu') {
+        if (region == 'eu') {
             
             // expedition reminder
             
@@ -157,7 +157,7 @@ module.exports = (bot) => {
             }
 
         // ASIA CRONJOBS //
-        if (region === 'asia') {
+        if (region == 'asia') {
             
             // exped reminders
             
@@ -230,5 +230,7 @@ module.exports = (bot) => {
             }
             , null, true, 'Asia/Taipei');
             }
+
+        return;
     })
 }
