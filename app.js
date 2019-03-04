@@ -54,25 +54,24 @@ defaultSettings = {
     team3: {
         name: "Team 3",
         team: []
-    },
-    region: "na",
+    }
 }
 
 
 // This loop reads the /events/ folder and attaches each event file to the appropriate event.
-// fs.readdir("./events/", (err, files) => {
-//     if (err) return console.error(err);
-//     files.forEach(file => {
+fs.readdir("./events/", (err, files) => {
+    if (err) return console.error(err);
+    files.forEach(file => {
    
-//       if (!file.endsWith(".js")) return;
+      if (!file.endsWith(".js")) return;
       
-//       const event = require(`./events/${file}`);
+      const event = require(`./events/${file}`);
      
-//       let eventName = file.split(".")[0];
+      let eventName = file.split(".")[0];
      
-//       bot.on(eventName, event.bind(null, bot));
-//     });
-//   });
+      bot.on(eventName, event.bind(null, bot));
+    });
+  });
 
 
 
@@ -82,13 +81,76 @@ bot.on('ready', () => {
     console.log('Ready boss!');
 
     bot.guilds.forEach((guild) => {
-
+        
         enmap.ensure(guild.id, defaultSettings);
+
+        //exped reminders
+        cron.schedule('00 45 11,19 * * *', () => {
+            
+            enmap.ensure(guild.id, defaultSettings);
+
+            let expoChannel = enmap.get(guild.id, "expoChannel");
+                
+            let expoMessage = enmap.get(guild.id, "expoMessage");
+    
+                
+            guild.channels
+                .find((channel) => {
+                    if (channel.name === expoChannel) {
+                        channel
+                            .send(expoMessage)
+                            .catch(console.error);
+                    } else {
+                        return;
+                    }
+                })
+    
+        }, {
+            scheduled: true,
+            timezone: "America/Los_Angeles"
+        });
+        
+        // exped auto clear
+           cron.schedule('00 01 13,21 * * *', () => {
+        
+            enmap.ensure(guild.id, defaultSettings);
+    
+            enmap.set(guild.id, [], 'team1.team');
+            enmap.set(guild.id, [], 'team2.team');
+            enmap.set(guild.id, [], 'team3.team');
+        }, {
+            scheduled: true,
+            timezone: "America/Los_Angeles"
+        });
+
+         // guild fort reminder
+        cron.schedule('00 45 20 * * *', () => {
+        
+            let fortChannel = enmap.get(guild.id, "fortChannel");
+            
+            let fortMessage = enmap.get(guild.id, "fortMessage");
+
+                
+            guild.channels
+            .find((channel) => {
+                if (channel.name === fortChannel) {
+                    channel
+                        .send(fortMessage)
+                        .catch(console.error);
+                } else {
+                    return;
+                }
+            })
+        }, {
+            scheduled: true,
+            timezone: "America/Los_Angeles"
+        });
+      
         let banquetTime = enmap.get(guild.id, 'banquetTime');
             
          
-            // banquet reminder
-            cron.schedule(`00 ${banquetTime} * * *`, () => {
+         // banquet reminder
+        cron.schedule(`00 ${banquetTime} * * *`, () => {
         
                 let banquetChannel = enmap.get(guild.id, 'banquetChannel');
                 let banquetMessage = enmap.get(guild.id, 'banquetMessage');
@@ -97,85 +159,14 @@ bot.on('ready', () => {
                     .find(channel => channel.name === banquetChannel)
                     .send(banquetMessage)
                     .catch(console.error);
-            }, {
-                scheduled: true,
-                timezone: "America/Los_Angeles"
-              });
+        }, {
+            scheduled: true,
+            timezone: "America/Los_Angeles"
+        });
 
           
         })
     })
-
-//expedition reminder
-bot.guilds.forEach((guild => {
-    cron.schedule('00 45 11,19 * * *', () => {
-            
-            
-        let expoChannel = enmap.get(guild.id, "expoChannel");
-            
-        let expoMessage = enmap.get(guild.id, "expoMessage");
-
-            
-        guild.channels
-            .find((channel) => {
-                if (channel.name === expoChannel) {
-                    channel
-                        .send(expoMessage)
-                        .catch(console.error);
-                } else {
-                    return;
-                }
-            })
-
-    }, {
-        scheduled: true,
-        timezone: "America/Los_Angeles"
-      });
-
-}))
-
-//expedition auto clear
-bot.guilds.forEach((guild => {
-      // exped auto clear
-            cron.schedule('00 01 13,21 * * *', () => {
-        
-                enmap.ensure(guild.id, defaultSettings);
-        
-                enmap.set(guild.id, [], 'team1.team');
-                enmap.set(guild.id, [], 'team2.team');
-                enmap.set(guild.id, [], 'team3.team');
-            }, {
-                scheduled: true,
-                timezone: "America/Los_Angeles"
-              });
-
-}))
-
-//fort reminder
-bot.guilds.forEach((guild => {
-     // guild fort reminder
-     cron.schedule('00 45 20 * * *', () => {
-       
-        let fortChannel = enmap.get(guild.id, "fortChannel");
-        
-        let fortMessage = enmap.get(guild.id, "fortMessage");
-
-            
-        guild.channels
-        .find((channel) => {
-            if (channel.name === fortChannel) {
-                channel
-                    .send(fortMessage)
-                    .catch(console.error);
-            } else {
-                return;
-            }
-        })
-    }, {
-        scheduled: true,
-        timezone: "America/Los_Angeles"
-      });
-}))
 
 // logs unhandled rejections
 process.on('unhandledRejection', (reason, promise) => {

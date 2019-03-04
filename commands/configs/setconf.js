@@ -85,7 +85,7 @@ class SetConf extends commando.Command{
                 .catch(console.error);
             }
 
-            else if (value === undefined) {
+            else if (value === undefined || value === null || value == '') {
                 return message.reply(`You cannot enter a blank value. Type '!setconf help' for configuration help, or '!showconf' for your current configurations.`)
             }
 
@@ -138,7 +138,7 @@ class SetConf extends commando.Command{
                 enmap.set(message.guild.id, value.join(" "), 'banquetTime');
 
                 message.channel
-                .send(`Your banquet time has been changed to ${value[1]}:${value[0]}.`)
+                .send(`Your banquet reminder time has been changed to ${value[1]}:${value[0]}.`)
                 .catch(err => console.log(err))
                 .then(process.exit);
     

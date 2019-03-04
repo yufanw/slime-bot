@@ -191,7 +191,7 @@ class Fuse extends commando.Command{
                       },
                       {
                           name: "**__# of Epic Powders to Max__**",
-                          value: "**Mythic Weapon**: 7,728.25 \n **Legendary Weapon**: 3197.90 \n **Unique Weapon**: 1038.63 \n **Epic Weapon**: 157.16 \n\n **Mythic Armor**: 5,944.81 \n **Legendary Armor**: 2459.92 \n **Unique Armor**: 798.95 \n **Epic Armor**: 120.88"
+                          value: "**Mythic Weapon**: 6761.39 \n **Legendary Weapon**: 2797.82 \n **Unique Weapon**: 908.69 \n **Epic Weapon**: 137.50 \n\n **Mythic Armor**: 5,201.07 \n **Legendary Armor**: 2152.17 \n **Unique Armor**: 699 \n **Epic Armor**: 105.76"
                       }
                     ]
                   }
