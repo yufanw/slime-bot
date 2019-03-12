@@ -9,7 +9,6 @@ const config = require('./config.json')
 const Enmap = require('enmap');
 const fs = require('fs');
 const CronJob = require('cron').CronJob;
-const cron = require('node-cron');
 
 //registering commands
 bot.registry
@@ -84,85 +83,76 @@ bot.on('ready', () => {
         
         enmap.ensure(guild.id, defaultSettings);
 
-        //exped reminders
-        cron.schedule('00 45 11,19 * * *', () => {
-            
-            enmap.ensure(guild.id, defaultSettings);
-
+        const expedReminder = () => {
+        
             let expoChannel = enmap.get(guild.id, "expoChannel");
-                
+                            
             let expoMessage = enmap.get(guild.id, "expoMessage");
+                
+                guild.channels
+                    .find((channel) => {
+                        if (channel.name === expoChannel) {
+                            channel
+                                .send(expoMessage)
+                                .catch(console.error);
+                        } else {
+                            return;
+                        }
+                    })
+        }
+    
+        const fortReminder = () => {
+            let fortChannel = enmap.get(guild.id, "fortChannel");
+                            
+            let fortMessage = enmap.get(guild.id, "fortMessage");
     
                 
             guild.channels
                 .find((channel) => {
-                    if (channel.name === expoChannel) {
+                    if (channel.name === fortChannel) {
                         channel
-                            .send(expoMessage)
+                            .send(fortMessage)
                             .catch(console.error);
                     } else {
                         return;
                     }
-                })
+            })
+        }
     
-        }, {
-            scheduled: true,
-            timezone: "America/Los_Angeles"
-        });
+        const banquetReminder = () => {
+         
+            let banquetChannel = enmap.get(guild.id, 'banquetChannel');
+            let banquetMessage = enmap.get(guild.id, 'banquetMessage');
         
-        // exped auto clear
-           cron.schedule('00 01 13,21 * * *', () => {
+            guild.channels
+                .find(channel => channel.name === banquetChannel)
+                .send(banquetMessage)
+                .catch(console.error);
+                    
         
+        }
+
+        const expedAutoClear = () => {
             enmap.ensure(guild.id, defaultSettings);
-    
+            
             enmap.set(guild.id, [], 'team1.team');
             enmap.set(guild.id, [], 'team2.team');
-            enmap.set(guild.id, [], 'team3.team');
-        }, {
-            scheduled: true,
-            timezone: "America/Los_Angeles"
-        });
+            enmap.set(guild.id, [], 'team3.team');    
+        }
+
+        //exped reminders
+        new CronJob('00 45 12,20 * * *', expedReminder, null, true, 'America/Los_Angeles');
+        
+        // exped auto clear
+        new CronJob(`00 01 14,22 * * *`, expedAutoClear, null, true, 'America/Los_Angeles')
 
          // guild fort reminder
-        cron.schedule('00 45 20 * * *', () => {
-        
-            let fortChannel = enmap.get(guild.id, "fortChannel");
-            
-            let fortMessage = enmap.get(guild.id, "fortMessage");
-
-                
-            guild.channels
-            .find((channel) => {
-                if (channel.name === fortChannel) {
-                    channel
-                        .send(fortMessage)
-                        .catch(console.error);
-                } else {
-                    return;
-                }
-            })
-        }, {
-            scheduled: true,
-            timezone: "America/Los_Angeles"
-        });
+        new CronJob('00 45 21 * * *', fortReminder, null, true, 'America/Los_Angeles');
       
+        // banquet reminder
         let banquetTime = enmap.get(guild.id, 'banquetTime');
-            
-         
-         // banquet reminder
-        cron.schedule(`00 ${banquetTime} * * *`, () => {
-        
-                let banquetChannel = enmap.get(guild.id, 'banquetChannel');
-                let banquetMessage = enmap.get(guild.id, 'banquetMessage');
-    
-                guild.channels
-                    .find(channel => channel.name === banquetChannel)
-                    .send(banquetMessage)
-                    .catch(console.error);
-        }, {
-            scheduled: true,
-            timezone: "America/Los_Angeles"
-        });
+                      
+        new CronJob(`00 ${banquetTime} * * *`, banquetReminder, null, true, 'America/Los_Angeles');
 
           
         })
