@@ -902,6 +902,10 @@ class Team extends commando.Command{
 
                     const [ prop, value, ...secondValue ] = args;
 
+                    const realUser = (user) => {
+                        return user === null ? "" : user;
+                    }
+
                     if (value === 'team1') {
 
                         let user1 = message.guild.members.find(member => member.displayName == team1[0]);
@@ -926,7 +930,7 @@ class Team extends commando.Command{
 
 
                             
-                        return message.channel.send(`${user1} ${user2} ${user3} ${user4} ${user5} ${user6} ${user7} ${user8} ${user9} ${user10} ${secondValue.join(" ")}`)
+                        return message.channel.send(`${realUser(user1)} ${realUser(user2)} ${realUser(user3)} ${realUser(user4)} ${realUser(user5)} ${realUser(user6)} ${realUser(user7)} ${realUser(user8)} ${realUser(user9)} ${realUser(user10)} : \n ${secondValue.join(" ")}`)
                     }
 
                     if (value === 'team2') {
@@ -951,7 +955,7 @@ class Team extends commando.Command{
                         let user10 = message.guild.members.find(member => member.displayName == team2[9]);
 
                             
-                        return message.channel.send(`${user1} ${user2} ${user3} ${user4} ${user5} ${user6} ${user7} ${user8} ${user9} ${user10} ${secondValue.join(" ")}`)
+                        return message.channel.send(`${realUser(user1)} ${realUser(user2)} ${realUser(user3)} ${realUser(user4)} ${realUser(user5)} ${realUser(user6)} ${realUser(user7)} ${realUser(user8)} ${realUser(user9)} ${realUser(user10)} : \n ${secondValue.join(" ")}`)
                     }
 
                     if (value === 'team3') {
@@ -977,7 +981,7 @@ class Team extends commando.Command{
                         let user10 = message.guild.members.find(member => member.displayName == team3[9]);
 
                                 
-                        return message.channel.send(`${user1} ${user2} ${user3} ${user4} ${user5} ${user6} ${user7} ${user8} ${user9} ${user10} ${secondValue.join(" ")}`)
+                        return message.channel.send(`${realUser(user1)} ${realUser(user2)} ${realUser(user3)} ${realUser(user4)} ${realUser(user5)} ${realUser(user6)} ${realUser(user7)} ${realUser(user8)} ${realUser(user9)} ${realUser(user10)} : \n ${secondValue.join(" ")}`)
                 
                     }
                 }

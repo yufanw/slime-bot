@@ -900,6 +900,10 @@ class Party extends commando.Command{
 
                     const [ prop, value, ...secondValue ] = args;
 
+                    const realUser = (user) => {
+                        return user === null ? "" : user;
+                    }
+
                     if (value === 'party1') {
 
                         let user1 = message.guild.members.find(member => member.displayName == party1[0]);
@@ -913,18 +917,8 @@ class Party extends commando.Command{
                         let user5 = message.guild.members.find(member => member.displayName == party1[4]);
 
                         let user6 = message.guild.members.find(member => member.displayName == party1[5]);
-
-                        let user7 = message.guild.members.find(member => member.displayName == party1[6]);
-
-                        let user8 = message.guild.members.find(member => member.displayName == party1[7]);
-
-                        let user9 = message.guild.members.find(member => member.displayName == party1[8]);
-
-                        let user10 = message.guild.members.find(member => member.displayName == party1[9]);
-
-
                             
-                        return message.channel.send(`${user1} ${user2} ${user3} ${user4} ${user5} ${user6} ${user7} ${user8} ${user9} ${user10} ${secondValue.join(" ")}`)
+                        return message.channel.send(`${realUser(user1)} ${realUser(user2)} ${realUser(user3)} ${realUser(user4)} ${realUser(user5)} ${realUser(user6)} : \n ${secondValue.join(" ")}`)
                     }
 
                     if (value === 'party2') {
@@ -940,16 +934,8 @@ class Party extends commando.Command{
 
                         let user6 = message.guild.members.find(member => member.displayName == party2[5]);
 
-                        let user7 = message.guild.members.find(member => member.displayName == party2[6]);
-
-                        let user8 = message.guild.members.find(member => member.displayName == party2[7]);
-
-                        let user9 = message.guild.members.find(member => member.displayName == party2[8]);
-
-                        let user10 = message.guild.members.find(member => member.displayName == party2[9]);
-
                             
-                        return message.channel.send(`${user1} ${user2} ${user3} ${user4} ${user5} ${user6} ${user7} ${user8} ${user9} ${user10} ${secondValue.join(" ")}`)
+                        return message.channel.send(`${realUser(user1)} ${realUser(user2)} ${realUser(user3)} ${realUser(user4)} ${realUser(user5)} ${realUser(user6)} : \n ${secondValue.join(" ")}`)
                     }
 
                     if (value === 'party3') {
@@ -966,16 +952,8 @@ class Party extends commando.Command{
 
                         let user6 = message.guild.members.find(member => member.displayName == party3[5]);
 
-                        let user7 = message.guild.members.find(member => member.displayName == party3[6]);
-
-                        let user8 = message.guild.members.find(member => member.displayName == party3[7]);
-
-                        let user9 = message.guild.members.find(member => member.displayName == party3[8]);
-
-                        let user10 = message.guild.members.find(member => member.displayName == party3[9]);
-
                                 
-                        return message.channel.send(`${user1} ${user2} ${user3} ${user4} ${user5} ${user6} ${user7} ${user8} ${user9} ${user10} ${secondValue.join(" ")}`)
+                        return message.channel.send(`${realUser(user1)} ${realUser(user2)} ${realUser(user3)} ${realUser(user4)} ${realUser(user5)} ${realUser(user6)} : \n ${secondValue.join(" ")}`)
                 
                     }
                 }
