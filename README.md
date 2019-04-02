@@ -23,6 +23,8 @@
 
 - !team command for organizing expeditions.
 
+- !party command for organizing SF/leech parties.
+
 ## Commands: 
 
 - !fuse - helps with fusing costs.
@@ -30,6 +32,8 @@
 - !jewel - jewel data
 
 - !team - organizing expeditions
+
+- !party - organizing parties
 
 - !help - shows bot's commands.
 
@@ -121,4 +125,6 @@
 
 ### Discord Server for Updates
 
-**If you are using this bot, please join this discord server for Slime Bot Updates** : https://discord.gg/rkwNAxj
+**If you are using this bot, please join this discord server for Slime Bot Updates** : https://discord.gg/rkwNAxj;
+
+**Please visit the website at https://www.slimebot.org for more info**
