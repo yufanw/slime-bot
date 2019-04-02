@@ -192,6 +192,10 @@ class Fuse extends commando.Command{
                       {
                           name: "**__# of Epic Powders to Max__**",
                           value: "**Mythic Weapon**: 6761.39 \n **Legendary Weapon**: 2797.82 \n **Unique Weapon**: 908.69 \n **Epic Weapon**: 137.50 \n\n **Mythic Armor**: 5,201.07 \n **Legendary Armor**: 2152.17 \n **Unique Armor**: 699 \n **Epic Armor**: 105.76"
+                      },
+                      {
+                        name: "**__# of Unique Powders to Max__**",
+                        value: "**Mythic Weapon**: 1960.53 \n **Legendary Weapon**: 811.25 \n **Unique Weapon**: 263.48 \n **Epic Weapon**: 39.86 \n\n **Mythic Armor**: 1508.10 \n **Legendary Armor**: 624.04 \n **Unique Armor**: 202.68 \n **Epic Armor**: 30.67"
                       }
                     ]
                   }

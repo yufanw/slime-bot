@@ -89,7 +89,7 @@ class SetConf extends commando.Command{
                 return message.reply(`You cannot enter a blank value. Type '!setconf help' for configuration help, or '!showconf' for your current configurations.`)
             }
 
-            else if (prop === 'expoChannel' || prop === 'banquetChannel' || prop === 'fortChannel' || prop === 'checkInChannel') {
+            else if (prop === 'expoChannel' || prop === 'banquetChannel' || prop === 'fortChannel' || prop === 'teamChannel' || prop === 'partyChannel') {
                 enmap.ensure(message.guild.id, defaultSettings)
             
                 enmap.set(message.guild.id, value.join("-").toLowerCase(), prop);

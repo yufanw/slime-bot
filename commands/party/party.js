@@ -1,13 +1,13 @@
 const commando = require('discord.js-commando');
 const config = require('../../config.json');
 
-class Team extends commando.Command{
+class Party extends commando.Command{
     constructor(client){
         super(client, {
-            name: 'team',
-            group: 'team',
-            memberName: 'team',
-            description: 'Organizing Team Commands'
+            name: 'party',
+            group: 'party',
+            memberName: 'party',
+            description: 'Organizing Party Commands'
         });
     }
 
@@ -23,69 +23,66 @@ class Team extends commando.Command{
         const guildConf = enmap.ensure(message.guild.id, defaultSettings);
 
         let member = message.member.displayName;
-
-        let teamChannel = enmap.get(message.guild.id, 'teamChannel');
-         
+        
         // expedition check-ins
     
-        if (command === "team") {
+        if (command === "party") {
 
             const [ prop ] = args;
 
-            if (message.channel.name === teamChannel) {
+    
 
+                let party1 = enmap.get(message.guild.id, 'party.party1.team');
+                let party2 = enmap.get(message.guild.id, 'party.party2.team');
+                let party3 = enmap.get(message.guild.id, 'party.party3.team');
+
+                let partyTeam1 = 'party.party1.team';
+                let partyTeam2 = 'party.party2.team';
+                let partyTeam3 = 'party.party3.team';
                 
-                let team1 = enmap.get(message.guild.id, 'team.team1.team');
-                let team2 = enmap.get(message.guild.id, 'team.team2.team');
-                let team3 = enmap.get(message.guild.id, 'team.team3.team');
+                let partyName1 = 'party.party1.name';
+                let partyName2 = 'party.party2.name';
+                let partyName3 = 'party.party3.name';
 
-                let teamTeam1 = 'team.team1.team';
-                let teamTeam2 = 'team.team2.team';
-                let teamTeam3 = 'team.team3.team';
-                
-                let teamName1 = 'team.team1.name';
-                let teamName2 = 'team.team2.name';
-                let teamName3 = 'team.team3.name';
-
-                const teamPush = (member, team) => {
-                    return enmap.push(message.guild.id, member, team);
+                const partyPush = (member, party) => {
+                    return enmap.push(message.guild.id, member, party);
                 }
 
-                const teamRemove = (member, team) => {
-                    return enmap.remove(message.guild.id, member, team);
+                const partyRemove = (member, party) => {
+                    return enmap.remove(message.guild.id, member, party);
                 }
 
-                const teamSet = (value, team) => {
-                    return enmap.set(message.guild.id, value, team);
+                const partySet = (value, party) => {
+                    return enmap.set(message.guild.id, value, party);
                 }
 
-                const teamList = (index, teamNumber) => {
-                    return teamNumber[index] === undefined ? " " : teamNumber[index];
+                const partyList = (index, partyNumber) => {
+                    return partyNumber[index] === undefined ? " " : partyNumber[index];
                 }
 
-                const teamEmbed = (name, teamNumber) => {
+                const partyEmbed = (name, partyNumber) => {
                     return message.channel.send({embed: {
                         color: 3447003,
                         fields: [{
                             name: `**__${name}__**`,
-                            value: `1. ${teamList(0, teamNumber)} \n 2. ${teamList(1, teamNumber)} \n 3. ${teamList(2, teamNumber)} \n 4. ${teamList(3, teamNumber)} \n 5. ${teamList(4, teamNumber)} \n 6. ${teamList(5, teamNumber)} \n 7. ${teamList(6, teamNumber)}\n 8. ${teamList(7, teamNumber)}\n 9. ${teamList(8, teamNumber)}\n 10. ${teamList(9, teamNumber)}`
+                            value: `1. ${partyList(0, partyNumber)} \n 2. ${partyList(1, partyNumber)} \n 3. ${partyList(2, partyNumber)} \n 4. ${partyList(3, partyNumber)} \n 5. ${partyList(4, partyNumber)} \n 6. ${partyList(5, partyNumber)}`
                         },
                         ]
                     }
                     })
                 }
 
-                let fullteam1 = !team1.includes(undefined) && team1.length === 10;
-                let fullteam2 = !team2.includes(undefined) && team2.length === 10;
-                let fullteam3 = !team3.includes(undefined) && team3.length === 10;
+                let fullparty1 = !party1.includes(undefined) && party1.length === 6;
+                let fullparty2 = !party2.includes(undefined) && party2.length === 6;
+                let fullparty3 = !party3.includes(undefined) && party3.length === 6;
 
-                let includesMember1 = team1.includes(member);
-                let includesMember2 = team2.includes(member);
-                let includesMember3 = team3.includes(member);
+                let includesMember1 = party1.includes(member);
+                let includesMember2 = party2.includes(member);
+                let includesMember3 = party3.includes(member);
                
-                let name1 = enmap.get(message.guild.id, 'team.team1.name');
-                let name2 = enmap.get(message.guild.id, 'team.team2.name');
-                let name3 = enmap.get(message.guild.id, 'team.team3.name');
+                let name1 = enmap.get(message.guild.id, 'party.party1.name');
+                let name2 = enmap.get(message.guild.id, 'party.party2.name');
+                let name3 = enmap.get(message.guild.id, 'party.party3.name');
                 
                 // checking in
                 if (prop === "checkin") {
@@ -94,180 +91,180 @@ class Team extends commando.Command{
 
                     if (value === '3') {
 
-                        if (fullteam3) {
+                        if (fullparty3) {
                             message.reply(`${name3} is full`);
             
-                            teamEmbed(name3, team3);
+                            partyEmbed(name3, party3);
                         }
 
-                        else if (team3.includes(member)) {
+                        else if (party3.includes(member)) {
                             return message.reply(`You're already checked in!`)
                         }
 
                         else {
             
-                            teamPush(member, teamTeam3)
+                            partyPush(member, partyTeam3)
                         
                             message.reply(`you just checked in to ${name3}.`)
                 
-                            teamEmbed(name3, team3);
+                            partyEmbed(name3, party3);
                         } 
                     }
 
 
                     else if (value === '2') {
 
-                        if (fullteam2) {
+                        if (fullparty2) {
 
                             message.reply(`${name2} is full`);
             
-                            teamEmbed(name2, team2);
+                            partyEmbed(name2, party2);
                         }
                         
-                        else if (team2.includes(member)) {
+                        else if (party2.includes(member)) {
                             return message.reply(`You're already checked in!`)
                         }
             
                         else {
             
-                            teamPush(member, teamTeam2)
+                            partyPush(member, partyTeam2)
                         
                             message.reply(`you just checked in to ${name2}.`)
                 
-                            teamEmbed(name2, team2);
+                            partyEmbed(name2, party2);
                         }
                     }
 
                     else if (value === 'all') {
                         
 
-                        if (fullteam1 && fullteam2 && fullteam3) {
-                            return message.reply(`Sorry, all teams are full!`)
+                        if (fullparty1 && fullparty2 && fullparty3) {
+                            return message.reply(`Sorry, all partys are full!`)
                         }
 
-                        else if (fullteam1 && fullteam2) {
-                            teamPush(mmeber, teamTeam3);
+                        else if (fullparty1 && fullparty2) {
+                            partyPush(mmeber, partyTeam3);
 
                             message.reply(`Sorry, ${name1} and ${name2} are full, you have checked in to only ${name3}`)
 
-                            teamEmbed(name3, team3);
+                            partyEmbed(name3, party3);
                         }
 
-                        else if (fullteam1 && fullteam3) {
-                            teamPush(member, teamTeam2);
+                        else if (fullparty1 && fullparty3) {
+                            partyPush(member, partyTeam2);
 
                             message.reply(`${name1} and ${name3} are full, you have checked in to only ${name2}`)
 
-                            teamEmbed(name2, team2);
+                            partyEmbed(name2, party2);
                         }
 
-                        else if (fullteam2 && fullteam3) {
-                            teamPush(member, teamTeam1)
+                        else if (fullparty2 && fullparty3) {
+                            partyPush(member, partyTeam1)
 
                             message.reply(`${name2} and ${name3} are full, you have checked in to only ${name1}`)
 
-                            teamEmbed(name1, team1);
+                            partyEmbed(name1, party1);
                         }
 
-                        else if (fullteam1) {
-                            teamPush(member, teamTeam2);
-                            teamPush(member, teamTeam3);
+                        else if (fullparty1) {
+                            partyPush(member, partyTeam2);
+                            partyPush(member, partyTeam3);
 
                             message.reply(`${name1} is full, you have checked into ${name2} and ${name3}`)
                         }
 
-                        else if (fullteam2) {
-                            teamPush(member, teamTeam1);
-                            teamPush(member, teamTeam3);
+                        else if (fullparty2) {
+                            partyPush(member, partyTeam1);
+                            partyPush(member, partyTeam3);
 
                             message.reply(`${name2} is full, you have checked into ${name1} and ${name3}`)
                         }
 
-                        else if (fullteam3) {
-                            teamPush(member, teamTeam1);
-                            teamPush(member, teamTeam2);
+                        else if (fullparty3) {
+                            partyPush(member, partyTeam1);
+                            partyPush(member, partyTeam2);
 
                             message.reply(`${name3} is full, you have checked into ${name1} and ${name2}`)
                         }
 
                         else {
-                            teamPush(member, teamTeam1);
-                            teamPush(member, teamTeam2);
-                            teamPush(member, teamTeam3)
+                            partyPush(member, partyTeam1);
+                            partyPush(member, partyTeam2);
+                            partyPush(member, partyTeam3)
 
-                            message.reply(`You have checked into all teams`)
+                            message.reply(`You have checked into all partys`)
                         }
                     }
 
                     else {  
-                        // if team 1 is full
-                        if (fullteam1) {
+                        // if party 1 is full
+                        if (fullparty1) {
 
-                            if (team2.includes(member) || team3.includes(member)) {
+                            if (party2.includes(member) || party3.includes(member)) {
                                 return message.reply(`${name1} is full, and you are already in ${name2} and ${name3}`)
                             }
 
-                            else if (fullteam2) {
+                            else if (fullparty2) {
 
-                                if (fullteam3) {
-                                    return message.reply(`All teams are full!`)
+                                if (fullparty3) {
+                                    return message.reply(`All partys are full!`)
                                 }
 
-                                teamPush(member, teamTeam3);
+                                partyPush(member, partyTeam3);
 
                                 message.reply(`${name1} & ${name2} are full, you have been added to ${name3}`)
 
-                                teamEmbed(name3, team3);
+                                partyEmbed(name3, party3);
                             }
                             
                             else {
-                                teamPush(member, teamTeam2);
+                                partyPush(member, partyTeam2);
                 
                                 message.reply(`${name1} is full, you have been added to ${name2}`);
                 
-                                teamEmbed(name2, team2);
+                                partyEmbed(name2, party2);
                             }
                             }
                             
-                        // if team 2 is full
-                        else if(fullteam2) {
+                        // if party 2 is full
+                        else if(fullparty2) {
 
-                            if (team1.includes(member) || team3.includes(member)) {
+                            if (party1.includes(member) || party3.includes(member)) {
                                 return message.reply(`${name2} is full, and you are already checked in to ${name1} and ${name3}`)
                             }
 
-                            else if (team1.includes(undefined) && team1.length !== 6) {
-                                teamPush(member, teamTeam1);
+                            else if (party1.includes(undefined) && party1.length !== 6) {
+                                partyPush(member, partyTeam1);
 
                                 message.reply(`${name2} is full, you have been added to ${name1}`);
 
-                                teamEmbed(name1, team1);
+                                partyEmbed(name1, party1);
                             }
 
                             else {
 
-                                if (fullteam3) {
-                                    return message.reply(`All teams are full!`)
+                                if (fullparty3) {
+                                    return message.reply(`All partys are full!`)
                                 }
-                                teamPush(member, teamTeam3);
+                                partyPush(member, partyTeam3);
                 
                                 message.reply(`${name2} is full, you have been added to ${name3}`);
                 
-                                teamEmbed(name3, teamTeam3);
+                                partyEmbed(name3, partyTeam3);
                             }
                         }    
 
-                        else if (team1.includes(member)) {
+                        else if (party1.includes(member)) {
                             return message.reply(`You're already checked in!`)
                         }
                 
                         else {
                 
-                            teamPush(member, teamTeam1);
+                            partyPush(member, partyTeam1);
                         
                             message.reply(`you just checked in to ${name1}.`)
                     
-                            teamEmbed(name1, team1);
+                            partyEmbed(name1, party1);
                         } 
                     }
                 }
@@ -280,158 +277,158 @@ class Team extends commando.Command{
                     if (includesMember1 && includesMember2 && includesMember3) {
 
                         if (value === '1') {
-                            teamRemove(member, teamTeam1);
+                            partyRemove(member, partyTeam1);
                         
                             message.reply(`you have been removed from ${name1}.`);
                 
-                            teamEmbed(name1, team1);
+                            partyEmbed(name1, party1);
                         }
 
                         else if (value === '2') {
-                            teamRemove(member, teamTeam2);
+                            partyRemove(member, partyTeam2);
 
                             message.reply(`you have been removed from ${name2}`);
 
-                            teamEmbed(name2, team2);
+                            partyEmbed(name2, party2);
                         }
 
                         else if (value === '3') {
-                            teamRemove(member, teamTeam3);
+                            partyRemove(member, partyTeam3);
 
                             message.reply(`you have been removed from ${name3}`);
 
-                            teamEmbed(name3, team3);
+                            partyEmbed(name3, party3);
                         }
 
                         else if (value === 'all') {
-                            teamRemove(member, teamTeam1);
-                            teamRemove(member, teamTeam2);
-                            teamRemove(member, teamTeam3);
+                            partyRemove(member, partyTeam1);
+                            partyRemove(member, partyTeam2);
+                            partyRemove(member, partyTeam3);
 
-                            message.reply(`you have been removed from all 3 teams.`)
+                            message.reply(`you have been removed from all 3 partys.`)
                         }
 
                         else {
-                            message.reply(`You are checked in to all 3 teams. Please specify which team you'd like to be checked out of.`)
+                            message.reply(`You are checked in to all 3 partys. Please specify which party you'd like to be checked out of.`)
                         }
                     }
 
                     else if (includesMember1 && includesMember2) {
 
                         if (value === '1') {
-                            teamRemove(member, teamTeam1);
+                            partyRemove(member, partyTeam1);
                         
                             message.reply(`you have been removed from ${name1}.`);
                 
-                            teamEmbed(name1, team1);
+                            partyEmbed(name1, party1);
                         }
 
                         else if (value === '2') {
-                            teamRemove(member, teamTeam2);
+                            partyRemove(member, partyTeam2);
 
                             message.reply(`you have been removed from ${name2}`);
 
-                            teamEmbed(name2, team2);
+                            partyEmbed(name2, party2);
                         }
                         else if (value === 'all') {
-                            teamRemove(member, teamTeam1);
-                            teamRemove(member, teamTeam2);
+                            partyRemove(member, partyTeam1);
+                            partyRemove(member, partyTeam2);
                             
 
                             message.reply(`you have been removed from ${name1} & ${name2}.`)
                         }
 
                         else {
-                            message.reply(`You are checked in to teams 1 & 2. Please specify which team you'd like to be checked out of.`)
+                            message.reply(`You are checked in to partys 1 & 2. Please specify which party you'd like to be checked out of.`)
                         }
                     }
 
                     else if (includesMember1 && includesMember3) {
 
                         if (value === '1') {
-                            teamRemove(member, teamTeam1);
+                            partyRemove(member, partyTeam1);
                         
                             message.reply(`you have been removed from ${name1}.`);
                 
-                            teamEmbed(name1, team1);
+                            partyEmbed(name1, party1);
                         }
 
                         else if (value === '3') {
-                            teamRemove(member, teamTeam3);
+                            partyRemove(member, partyTeam3);
 
                             message.reply(`you have been removed from ${name3}`);
 
-                            teamEmbed(name3, team3);
+                            partyEmbed(name3, party3);
                         }
 
                         else if (value === 'all') {
-                            teamRemove(member, teamTeam1);
-                            teamRemove(member, teamTeam3);
+                            partyRemove(member, partyTeam1);
+                            partyRemove(member, partyTeam3);
                             
 
                             message.reply(`you have been removed from ${name1} & ${name3}.`)
                         }
 
                         else {
-                            message.reply(`You are checked in to teams 1 & 3. Please specify which team you'd like to be checked out of.`)
+                            message.reply(`You are checked in to partys 1 & 3. Please specify which party you'd like to be checked out of.`)
                         }
                     }
 
                     else if (includesMember2 && includesMember3) {
 
                         if (value === '2') {
-                            teamRemove(member, teamTeam2);
+                            partyRemove(member, partyTeam2);
 
                             message.reply(`you have been removed from ${name2}`);
 
-                            teamEmbed(name2, team2);
+                            partyEmbed(name2, party2);
                         }
 
                         else if (value === '3') {
-                            teamRemove(member, teamTeam3);
+                            partyRemove(member, partyTeam3);
 
                             message.reply(`you have been removed from ${name3}`);
 
-                            teamEmbed(name3, team3);
+                            partyEmbed(name3, party3);
                         }
 
                         else if (value === 'all') {
-                            teamRemove(member, teamTeam2);
-                            teamRemove(member, teamTeam3);
+                            partyRemove(member, partyTeam2);
+                            partyRemove(member, partyTeam3);
                             
 
                             message.reply(`you have been removed from ${name2} & ${name3}.`)
                         }
 
                         else {
-                            message.reply(`You are checked in to teams 2 & 3. Please specify which team you'd like to be checked out of.`)
+                            message.reply(`You are checked in to partys 2 & 3. Please specify which party you'd like to be checked out of.`)
                         }
                     }
 
                     else if (includesMember1) {
 
-                        teamRemove(member, teamTeam1);
+                        partyRemove(member, partyTeam1);
                         
                         message.reply(`you have been removed from ${name1}.`);
             
-                        teamEmbed(name1, team1);
+                        partyEmbed(name1, party1);
                     }
 
                     else if (includesMember2) {
-                        teamRemove(member, teamTeam2);
+                        partyRemove(member, partyTeam2);
 
                         message.reply(`you have been removed from ${name2}`);
 
-                        teamEmbed(name2, team2);
+                        partyEmbed(name2, party2);
                     }
 
                     else if (includesMember3) {
 
-                        teamRemove(member, teamTeam3);
+                        partyRemove(member, partyTeam3);
 
                         message.reply(`you have been removed from ${name3}`);
 
-                        teamEmbed(name3, team3);
+                        partyEmbed(name3, party3);
                     }
 
                     else {
@@ -453,88 +450,88 @@ class Team extends commando.Command{
                         return message.reply("Hey, you're not the boss of me!");
                     }
 
-                    if (value === 'team1') {
+                    if (value === 'party1') {
 
                         if (secondValue.join(" ")) {
 
-                            let value = team1[secondValue-1];
+                            let value = party1[secondValue-1];
                         
                             if (value !== undefined) {
                             
                                 message.channel.send(`${value} has been removed from ${name1}.`)
 
-                                teamRemove(value, teamTeam1)
+                                partyRemove(value, partyTeam1)
             
-                                teamEmbed(name1, team1);
+                                partyEmbed(name1, party1);
                             }
 
                             else {
                                 message.channel.send(`There is no one to remove here.`)
 
-                                teamEmbed(name1, team1);
+                                partyEmbed(name1, party1);
                             }
                         }
 
                         else {
-                            return message.reply(`Please enter '!team remove <team1 or team2 or team3> <number>'`);
+                            return message.reply(`Please enter '!party remove <party1 or party2 or party3> <number>'`);
                         }
                         
                     }
 
-                    else if (value === 'team2') {
+                    else if (value === 'party2') {
 
                         if (secondValue.join(" ")) {
 
-                            let value2 = team2[secondValue-1];
+                            let value2 = party2[secondValue-1];
 
                             if (value2 !== undefined) {
                                 message.channel.send(`${value2} has been removed from ${name2}.`)
 
-                                teamRemove(value, teamTeam2);
+                                partyRemove(value, partyTeam2);
                 
-                                teamEmbed(name2, team2);
+                                partyEmbed(name2, party2);
                             }
 
                             else {
                                 message.channel.send(`There is no one to remove here`);
 
-                                teamEmbed(name2, team2);
+                                partyEmbed(name2, party2);
                             }
                         }
 
                         else {
-                            return message.reply(`Please enter '!team remove <team1 or team2 or team3> <number>'`)
+                            return message.reply(`Please enter '!party remove <party1 or party2 or party3> <number>'`)
                         }
                     }
 
-                    else if (value === 'team3') {
+                    else if (value === 'party3') {
 
                         if (secondValue.join(" ")) {
 
-                            let value3 = team3[secondValue-1];
+                            let value3 = party3[secondValue-1];
 
                             if (value3 !== undefined) {
                                 message.channel.send(`${value3} has been removed from ${name3}.`)
 
-                                teamRemove(value, teamTeam3);
+                                partyRemove(value, partyTeam3);
                 
-                                teamEmbed(name3, team3);
+                                partyEmbed(name3, party3);
                             }
 
                             else {
                                 message.channel.send(`There is no one to remove here`);
 
-                                teamEmbed(name3, team3);
+                                partyEmbed(name3, party3);
                             }
                         }
 
                         else {
-                            return message.reply(`Please enter '!team remove <team1 or team2 or team3> <number>'`)
+                            return message.reply(`Please enter '!party remove <party1 or party2 or party3> <number>'`)
                         }
                     }
 
                     else {
-                        return message.reply(`Please enter '!team remove <team1 or team2 or team3> <number>'`)
+                        return message.reply(`Please enter '!party remove <party1 or party2 or party3> <number>'`)
                     }
                     
                 }
@@ -552,71 +549,71 @@ class Team extends commando.Command{
                         return message.reply("Hey, you're not the boss of me!");
                     }
 
-                    if (value === 'team1') {
+                    if (value === 'party1') {
 
 
-                        if (team1.includes(secondValue.join(" "))) {
+                        if (party1.includes(secondValue.join(" "))) {
                             return message.reply(`${secondValue.join(" ")} is already checked in to ${name1}`)
                         }
 
-                        else if (fullteam1) {
+                        else if (fullparty1) {
                             return message.reply(`${name1} is already full!`)
                         }
             
                         else {
                             message.channel.send(`${secondValue.join(" ")} has been added to ${name1}`)
 
-                            teamPush(secondValue.join(" "), teamTeam1)
+                            partyPush(secondValue.join(" "), partyTeam1)
                 
-                            teamEmbed(name1, team1);
+                            partyEmbed(name1, party1);
                         }
                     }
 
-                    else if (value === 'team2') {
+                    else if (value === 'party2') {
 
-                        if (team2.includes(secondValue.join(" "))) {
+                        if (party2.includes(secondValue.join(" "))) {
                             return message.reply(`${secondValue.join(" ")} is already checked in to ${name2}`)
                         }
 
-                        else if (fullteam2) {
+                        else if (fullparty2) {
                             return message.reply(`${name2} is already full!`)
                         }
             
                         else {
                             message.channel.send(`${secondValue.join(" ")} has been added to ${name2}`)
             
-                            teamPush(secondValue.join(" "), teamTeam2)
+                            partyPush(secondValue.join(" "), partyTeam2)
                 
-                            teamEmbed(name2, team2);
+                            partyEmbed(name2, party2);
                         }
                     }
 
-                    else if (value === 'team3') {
+                    else if (value === 'party3') {
 
-                        if (team3.includes(secondValue.join(" "))) {
+                        if (party3.includes(secondValue.join(" "))) {
                             return message.reply(`${secondValue.join(" ")} is already checked in to ${name3}`)
                         }
 
-                        else if (fullteam3) {
+                        else if (fullparty3) {
                             return message.reply(`${name3} is already full!`)
                         }
             
                         else {
                             message.channel.send(`${secondValue.join(" ")} has been added to ${name3}`)
             
-                            teamPush(secondValue.join(" "), teamTeam3)
+                            partyPush(secondValue.join(" "), partyTeam3)
                 
-                            teamEmbed(name3, team3);
+                            partyEmbed(name3, party3);
                         }
                     }
 
                     else {
-                        return message.reply(`Please enter '!team add <team1 or team2 or team3> <display name>`)
+                        return message.reply(`Please enter '!party add <party1 or party2 or party3> <display name>`)
                     }
                 }
         
             
-                // clearing teams
+                // clearing partys
                 else if (prop === "clear") {
 
                     const [prop, value] = args;
@@ -630,39 +627,39 @@ class Team extends commando.Command{
                     }
 
                     if (value === '1') {
-                        teamSet([], teamTeam1);
+                        partySet([], partyTeam1);
 
                         return message.channel.send(`${name1} has been cleared.`)
                     }
 
                     else if (value === '2') {
-                        teamSet([], teamTeam2);
+                        partySet([], partyTeam2);
 
                         return message.channel.send(`${name2} has been cleared`)
                     }
                     
                     else if (value === '3') {
-                        teamSet([], teamTeam3);
+                        partySet([], partyTeam3);
 
                         return message.channel.send(`${name3} has been cleared`)
                     }
 
                     else if ( value === 'all') {
-                        teamSet([], teamTeam1);
-                        teamSet([], teamTeam2);
-                        teamSet([], teamTeam3);
+                        partySet([], partyTeam1);
+                        partySet([], partyTeam2);
+                        partySet([], partyTeam3);
 
-                        return message.channel.send(`All teams have been cleared`)
+                        return message.channel.send(`All partys have been cleared`)
                     }
 
                     else {
-                        return message.reply(`Please enter which team you'd like to clear (1 or 2 or 3)`)
+                        return message.reply(`Please enter which party you'd like to clear (1 or 2 or 3)`)
                     }
 
                     
                 }
 
-                // viewing teams
+                // viewing partys
                 else if (prop === "view") {
                 
                 const [prop, value] = args;
@@ -670,20 +667,21 @@ class Team extends commando.Command{
                     enmap.ensure(message.guild.id, defaultSettings);
 
                     if (value === '1') {
-                        teamEmbed(name1, team1);
+                        partyEmbed(name1, party1);
                     }
 
                     else if (value === '2') {
-                        teamEmbed(name2, team2);
+                        partyEmbed(name2, party2);
                     }
 
                     else if (value === '3') {
-                        teamEmbed(name3, team3);
+                        partyEmbed(name3, party3);
                     }
 
                     else if (value === 'all') {
-                        const teamList = (index, team) => {
-                            return team[index] === undefined ? " " : team[index];
+
+                        const partyList = (index, party) => {
+                            return party[index] === undefined ? " " : party[index];
                         }
 
                         return message.channel.send({embed: {
@@ -691,15 +689,15 @@ class Team extends commando.Command{
                             fields: [
                                 {
                                 name: `**__${name1}__**`,
-                                value: `1. ${teamList(0, team1)} \n 2. ${teamList(1, team1)} \n 3. ${teamList(2, team1)} \n 4. ${teamList(3, team1)} \n 5. ${teamList(4, team1)} \n 6. ${teamList(5, team1)} \n 7. ${teamList(6, team1)} \n 8. ${teamList(7, team1)} \n 9. ${teamList(8, team1)} \n 10. ${teamList(9, team1)}`
+                                value: `1. ${partyList(0, party1)} \n 2. ${partyList(1, party1)} \n 3. ${partyList(2, party1)} \n 4. ${partyList(3, party1)} \n 5. ${partyList(4, party1)} \n 6. ${partyList(5, party1)}`
                                 },
                                 {
                                 name: `**__${name2}__**`,
-                                value: `1. ${teamList(0, team2)} \n 2. ${teamList(1, team2)} \n 3. ${teamList(2, team2)} \n 4. ${teamList(3, team2)} \n 5. ${teamList(4, team2)} \n 6. ${teamList(5, team2)} \n 7. ${teamList(6, team2)} \n 8. ${teamList(7, team2)} \n 9. ${teamList(8, team2)} \n 10. ${teamList(9, team2)} `
+                                value: `1. ${partyList(0, party2)} \n 2. ${partyList(1, party2)} \n 3. ${partyList(2, party2)} \n 4. ${partyList(3, party2)} \n 5. ${partyList(4, party2)} \n 6. ${partyList(5, party2)} `
                                 },
                                 {
                                 name: `**__${name3}__**`,
-                                value: `1. ${teamList(0, team3)} \n 2. ${teamList(1, team3)} \n 3. ${teamList(2, team3)} \n 4. ${teamList(3, team3)} \n 5. ${teamList(4, team3)} \n 6. ${teamList(5, team3)} \n 7. ${teamList(6, team3)} \n 8. ${teamList(7, team3)} \n 9. ${teamList(8, team3)} \n 10. ${teamList(9, team3)} `
+                                value: `1. ${partyList(0, party3)} \n 2. ${partyList(1, party3)} \n 3. ${partyList(2, party3)} \n 4. ${partyList(3, party3)} \n 5. ${partyList(4, party3)} \n 6. ${partyList(5, party3)} `
                                 },
                             ]
                         }
@@ -707,7 +705,7 @@ class Team extends commando.Command{
                     }
 
                     else {
-                        return message.reply(`Please enter which team you'd like to view (1 or 2 or 3)`)
+                        return message.reply(`Please enter which party you'd like to view (1 or 2 or 3)`)
                 }
                 }
         
@@ -715,7 +713,7 @@ class Team extends commando.Command{
 
                 else if (prop === 'swap') {
 
-                    const [prop, firstteam, firstNumber, secondteam, secondNumber] = args;
+                    const [prop, firstparty, firstNumber, secondparty, secondNumber] = args;
 
                     const adminRole = message.guild.roles.find(role => role.name === guildConf.adminRole);
 
@@ -726,18 +724,18 @@ class Team extends commando.Command{
                         return message.reply("Hey, you're not the boss of me!");
                     }
 
-                    if (firstteam === 'team1' && secondteam === 'team2') {
-                        let member1 = team1[firstNumber-1];
+                    if (firstparty === 'party1' && secondparty === 'party2') {
+                        let member1 = party1[firstNumber-1];
 
-                        let member2 = team2[secondNumber-1];
+                        let member2 = party2[secondNumber-1];
 
                         if (member1 === undefined && member2 !== undefined) {
 
                             message.reply(`${member2} has been moved to ${name1}`);
 
-                            teamPush(member2, teamTeam1);
+                            partyPush(member2, partyTeam1);
 
-                            teamRemove(member2, teamTeam2);
+                            partyRemove(member2, partyTeam2);
             
                         }
             
@@ -745,9 +743,9 @@ class Team extends commando.Command{
             
                             message.reply(`${member1} has been moved to ${name2}`);
             
-                            teamPush(member2, teamTeam2);
+                            partyPush(member2, partyTeam2);
 
-                            teamRemove(member2, teamTeam1);
+                            partyRemove(member2, partyTeam1);
             
                             
                         }
@@ -759,39 +757,39 @@ class Team extends commando.Command{
                         else {
                             message.reply (`${member1} and ${member2} have been swapped.`)
             
-                            teamPush(member1, teamTeam2);
+                            partyPush(member1, partyTeam2);
 
-                            teamRemove(member1, teamTeam1);
+                            partyRemove(member1, partyTeam1);
 
-                            teamPush(member2, teamTeam1);
+                            partyPush(member2, partyTeam1);
 
-                            teamRemove(member2, teamTeam2);
+                            partyRemove(member2, partyTeam2);
             
                             
                         }
                     }
 
-                    else if (firstteam === 'team1' && secondteam === 'team3') {
-                        let member1 = team1.team[firstNumber-1];
+                    else if (firstparty === 'party1' && secondparty === 'party3') {
+                        let member1 = party1.party[firstNumber-1];
 
-                        let member2 = team3.team[secondNumber-1];
+                        let member2 = party3.party[secondNumber-1];
 
                         if (member1 === undefined && member2 !== undefined) {
 
                             message.reply(`${member2} has been moved to ${name1}`);
             
-                            teamPush(member2, teamTeam1);
+                            partyPush(member2, partyTeam1);
 
-                            teamRemove(member2, teamTeam3);
+                            partyRemove(member2, partyTeam3);
                         }
             
                         else if (member2 === undefined && member1 !== undefined) {
             
                             message.reply(`${member1} has been moved to ${name3}`);
             
-                            teamPush(member1, teamTeam3);
+                            partyPush(member1, partyTeam3);
 
-                            teamRemove(member1, teamTeam1);
+                            partyRemove(member1, partyTeam1);
             
                             
                         }
@@ -803,38 +801,38 @@ class Team extends commando.Command{
                         else {
                             message.reply (`${member1} and ${member2} have been swapped.`)
                             
-                            teamPush(member1, teamTeam3);
+                            partyPush(member1, partyTeam3);
 
-                            teamRemove(member1, teamTeam1);
+                            partyRemove(member1, partyTeam1);
 
-                            teamPush(member2, teamTeam1);
+                            partyPush(member2, partyTeam1);
 
-                            teamRemove(member2, teamTeam3);
+                            partyRemove(member2, partyTeam3);
                             
                         }
                     }
 
-                    else if (firstteam === 'team2' && secondteam === 'team3') {
-                        let member1 = team2.team[firstNumber-1];
+                    else if (firstparty === 'party2' && secondparty === 'party3') {
+                        let member1 = party2.party[firstNumber-1];
 
-                        let member2 = team3.team[secondNumber-1];
+                        let member2 = party3.party[secondNumber-1];
 
                         if (member1 === undefined && member2 !== undefined) {
 
                             message.reply(`${member2} has been moved to ${name2}`);
             
-                            teamPush(member2, teamTeam2);
+                            partyPush(member2, partyTeam2);
 
-                            teamRemove(member2, teamTeam3);
+                            partyRemove(member2, partyTeam3);
                         }
             
                         else if (member2 === undefined && member1 !== undefined) {
             
                             message.reply(`${member1} has been moved to ${name3}`);
             
-                            teamPush(member1, teamTeam3);
+                            partyPush(member1, partyTeam3);
 
-                            teamRemove(member1, teamTeam2);
+                            partyRemove(member1, partyTeam2);
             
                             
                         }
@@ -846,20 +844,20 @@ class Team extends commando.Command{
                         else {
                             message.reply (`${member1} and ${member2} have been swapped.`)
 
-                            teamPush(member1, teamTeam3);
+                            partyPush(member1, partyTeam3);
 
-                            teamRemove(member1, teamTeam2);
+                            partyRemove(member1, partyTeam2);
 
-                            teamPush(member2, teamTeam2);
+                            partyPush(member2, partyTeam2);
 
-                            teamRemove(member2, teamTeam3);
+                            partyRemove(member2, partyTeam3);
             
                         }
                     }
 
                 }
 
-                // changing team title
+                // changing party title
 
                 else if (prop === 'edit') {
 
@@ -874,25 +872,25 @@ class Team extends commando.Command{
                         return message.reply("Hey, you're not the boss of me!");
                     }
 
-                    if (value === 'team3') {
+                    if (value === 'party3') {
 
-                        teamSet(secondValue.join(" "), teamName3);
+                        partySet(secondValue.join(" "), partyName3);
 
-                        return message.reply(`You have changed team 3's name to ${secondValue.join(" ")}`)
+                        return message.reply(`You have changed party 3's name to ${secondValue.join(" ")}`)
                     }
 
-                    else if (value === 'team2') {
+                    else if (value === 'party2') {
 
-                        teamSet(secondValue.join(" "), teamName2);
+                        partySet(secondValue.join(" "), partyName2);
 
-                        return message.reply(`You have changed team 2's name to ${secondValue.join(" ")}`)
+                        return message.reply(`You have changed party 2's name to ${secondValue.join(" ")}`)
                     }
 
-                    else if (value === 'team1') {
+                    else if (value === 'party1') {
 
-                        teamSet(secondValue.join(" "), teamName1);
+                        partySet(secondValue.join(" "), partyName1);
 
-                        return message.reply(`You have changed team 1's name to ${secondValue.join(" ")}`)
+                        return message.reply(`You have changed party 1's name to ${secondValue.join(" ")}`)
                     }
                 }
 
@@ -902,79 +900,79 @@ class Team extends commando.Command{
 
                     const [ prop, value, ...secondValue ] = args;
 
-                    if (value === 'team1') {
+                    if (value === 'party1') {
 
-                        let user1 = message.guild.members.find(member => member.displayName == team1[0]);
+                        let user1 = message.guild.members.find(member => member.displayName == party1[0]);
 
-                        let user2 = message.guild.members.find(member => member.displayName == team1[1]);
+                        let user2 = message.guild.members.find(member => member.displayName == party1[1]);
 
-                        let user3 = message.guild.members.find(member => member.displayName == team1[2]);
+                        let user3 = message.guild.members.find(member => member.displayName == party1[2]);
 
-                        let user4 = message.guild.members.find(member => member.displayName == team1[3]);
+                        let user4 = message.guild.members.find(member => member.displayName == party1[3]);
 
-                        let user5 = message.guild.members.find(member => member.displayName == team1[4]);
+                        let user5 = message.guild.members.find(member => member.displayName == party1[4]);
 
-                        let user6 = message.guild.members.find(member => member.displayName == team1[5]);
+                        let user6 = message.guild.members.find(member => member.displayName == party1[5]);
 
-                        let user7 = message.guild.members.find(member => member.displayName == team1[6]);
+                        let user7 = message.guild.members.find(member => member.displayName == party1[6]);
 
-                        let user8 = message.guild.members.find(member => member.displayName == team1[7]);
+                        let user8 = message.guild.members.find(member => member.displayName == party1[7]);
 
-                        let user9 = message.guild.members.find(member => member.displayName == team1[8]);
+                        let user9 = message.guild.members.find(member => member.displayName == party1[8]);
 
-                        let user10 = message.guild.members.find(member => member.displayName == team1[9]);
+                        let user10 = message.guild.members.find(member => member.displayName == party1[9]);
 
-
-                            
-                        return message.channel.send(`${user1} ${user2} ${user3} ${user4} ${user5} ${user6} ${user7} ${user8} ${user9} ${user10} ${secondValue.join(" ")}`)
-                    }
-
-                    if (value === 'team2') {
-                        let user1 = message.guild.members.find(member => member.displayName == team2[0]);
-
-                        let user2 = message.guild.members.find(member => member.displayName == team2[1]);
-
-                        let user3 = message.guild.members.find(member => member.displayName == team2[2]);
-
-                        let user4 = message.guild.members.find(member => member.displayName == team2[3]);
-
-                        let user5 = message.guild.members.find(member => member.displayName == team2[4]);
-
-                        let user6 = message.guild.members.find(member => member.displayName == team2[5]);
-
-                        let user7 = message.guild.members.find(member => member.displayName == team2[6]);
-
-                        let user8 = message.guild.members.find(member => member.displayName == team2[7]);
-
-                        let user9 = message.guild.members.find(member => member.displayName == team2[8]);
-
-                        let user10 = message.guild.members.find(member => member.displayName == team2[9]);
 
                             
                         return message.channel.send(`${user1} ${user2} ${user3} ${user4} ${user5} ${user6} ${user7} ${user8} ${user9} ${user10} ${secondValue.join(" ")}`)
                     }
 
-                    if (value === 'team3') {
+                    if (value === 'party2') {
+                        let user1 = message.guild.members.find(member => member.displayName == party2[0]);
+
+                        let user2 = message.guild.members.find(member => member.displayName == party2[1]);
+
+                        let user3 = message.guild.members.find(member => member.displayName == party2[2]);
+
+                        let user4 = message.guild.members.find(member => member.displayName == party2[3]);
+
+                        let user5 = message.guild.members.find(member => member.displayName == party2[4]);
+
+                        let user6 = message.guild.members.find(member => member.displayName == party2[5]);
+
+                        let user7 = message.guild.members.find(member => member.displayName == party2[6]);
+
+                        let user8 = message.guild.members.find(member => member.displayName == party2[7]);
+
+                        let user9 = message.guild.members.find(member => member.displayName == party2[8]);
+
+                        let user10 = message.guild.members.find(member => member.displayName == party2[9]);
+
+                            
+                        return message.channel.send(`${user1} ${user2} ${user3} ${user4} ${user5} ${user6} ${user7} ${user8} ${user9} ${user10} ${secondValue.join(" ")}`)
+                    }
+
+                    if (value === 'party3') {
                         
-                        let user1 = message.guild.members.find(member => member.displayName == team3[0]);
+                        let user1 = message.guild.members.find(member => member.displayName == party3[0]);
 
-                        let user2 = message.guild.members.find(member => member.displayName == team3[1]);
+                        let user2 = message.guild.members.find(member => member.displayName == party3[1]);
 
-                        let user3 = message.guild.members.find(member => member.displayName == team3[2]);
+                        let user3 = message.guild.members.find(member => member.displayName == party3[2]);
 
-                        let user4 = message.guild.members.find(member => member.displayName == team3[3]);
+                        let user4 = message.guild.members.find(member => member.displayName == party3[3]);
 
-                        let user5 = message.guild.members.find(member => member.displayName == team3[4]);
+                        let user5 = message.guild.members.find(member => member.displayName == party3[4]);
 
-                        let user6 = message.guild.members.find(member => member.displayName == team3[5]);
+                        let user6 = message.guild.members.find(member => member.displayName == party3[5]);
 
-                        let user7 = message.guild.members.find(member => member.displayName == team3[6]);
+                        let user7 = message.guild.members.find(member => member.displayName == party3[6]);
 
-                        let user8 = message.guild.members.find(member => member.displayName == team3[7]);
+                        let user8 = message.guild.members.find(member => member.displayName == party3[7]);
 
-                        let user9 = message.guild.members.find(member => member.displayName == team3[8]);
+                        let user9 = message.guild.members.find(member => member.displayName == party3[8]);
 
-                        let user10 = message.guild.members.find(member => member.displayName == team3[9]);
+                        let user10 = message.guild.members.find(member => member.displayName == party3[9]);
 
                                 
                         return message.channel.send(`${user1} ${user2} ${user3} ${user4} ${user5} ${user6} ${user7} ${user8} ${user9} ${user10} ${secondValue.join(" ")}`)
@@ -982,7 +980,7 @@ class Team extends commando.Command{
                     }
                 }
                 
-                // team help
+                // party help
                 else if (prop === 'help') {
                 
                     const adminRole = message.guild.roles.find(role => role.name === guildConf.adminRole);
@@ -996,7 +994,7 @@ class Team extends commando.Command{
                             color: 3447003,
                             fields: [{
                                 name: "**__Public Commands__**",
-                                value: `**!team checkin <1 or 2 or 3>** : check yourself into team 1/2/3. If team 1 is full, checks you in team 2. If team 2 is full, checks you in to team 3. Checks you in team 1 if no number is typed. \n **!team checkout <1 or 2 or 3>** : remove yourself from team 1/2/3 \n **!team checkout all** : remove yourself from all teams \n**!team view <1 or 2 or 3>** : view team 1/2/3 \n **!team view all** : view all teams`
+                                value: `**!party checkin <1 or 2 or 3>** : check yourself into party 1/2/3. If party 1 is full, checks you in party 2. If party 2 is full, checks you in to party 3. Checks you in party 1 if no number is typed. \n **!party checkout <1 or 2 or 3>** : remove yourself from party 1/2/3 \n **!party checkout all** : remove yourself from all partys \n**!party view <1 or 2 or 3>** : view party 1/2/3 \n **!party view all** : view all partys`
                             }]
                             }
                         })
@@ -1009,13 +1007,13 @@ class Team extends commando.Command{
                             color: 3447003,
                             fields: [{
                                 name: "**__Public Commands__**",
-                                value: `**!team checkin <1 or 2 or 3>** : check yourself into team 1/2/3. If team 1 is full, checks you in team 2. If team 2 is full, checks you in to team 3. Checks you in team 1 if no number is typed. \n **!team checkout <1 or 2 or 3>** : remove yourself from team 1/2/3 \n **!team checkout all** : remove yourself from all teams \n**!team view <1 or 2 or 3>** : view team 1/2/3 \n **!team view all** : view all teams`
+                                value: `**!party checkin <1 or 2 or 3>** : check yourself into party 1/2/3. If party 1 is full, checks you in party 2. If party 2 is full, checks you in to party 3. Checks you in party 1 if no number is typed. \n **!party checkout <1 or 2 or 3>** : remove yourself from party 1/2/3 \n **!party checkout all** : remove yourself from all partys \n**!party view <1 or 2 or 3>** : view party 1/2/3 \n **!party view all** : view all partys`
                             },{
                                 name: `**__GM Commands Part 1__**`,
-                                value: `**!team clear <1 or 2 or 3>** : clears entire team 1/2/3 \n **!team clear all** : clear all teams \n **!team add <team1 or team2 or team3> <user>** : adds user to team 1/2/3 (**important**: user must be exact same spelling as their display name or else it will double register if user checks in themselves)`
+                                value: `**!party clear <1 or 2 or 3>** : clears entire party 1/2/3 \n **!party clear all** : clear all partys \n **!party add <party1 or party2 or party3> <user>** : adds user to party 1/2/3 (**important**: user must be exact same spelling as their display name or else it will double register if user checks in themselves)`
                             },{
                                 name: `**__GM Commands Part 2__**`,
-                                value: `**!team remove <team1 or team2 or team3> <number>** : removes member of that number from team 1/2/3 \n **!team swap <teamNumber> <number> <teamNumber> <number>** : swaps numbered player from team number with numbered player from team number. If any positions are empty, just simply moves player over. \n **!team edit <teamNumber> <name>** : edits numbered team's name`
+                                value: `**!party remove <party1 or party2 or party3> <number>** : removes member of that number from party 1/2/3 \n **!party swap <partyNumber> <number> <partyNumber> <number>** : swaps numbered player from party number with numbered player from party number. If any positions are empty, just simply moves player over. \n **!party edit <partyNumber> <name>** : edits numbered party's name`
                             }
                             ]
                         }
@@ -1026,15 +1024,12 @@ class Team extends commando.Command{
                 }
         
                 else {
-                    return message.reply(`Please enter !team help`)
+                    return message.reply(`Please enter !party help`)
                 }
-            }
-
-            else {
-                return message.reply(`This command is not available in this channel`)
-            }
         }
+
     }
 }
 
-module.exports = Team;
+
+module.exports = Party;

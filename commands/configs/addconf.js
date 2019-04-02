@@ -21,9 +21,9 @@ class AddConf extends commando.Command{
         if (message.content.indexOf(config.prefix) !== 0) return;
         
         // adding config to all guilds
-    if (command === 'addconf') {
-        enmap.forEach( (val, key) => enmap.set(key, "na", "region") );
-    }
+        // if (command === 'addconf') {
+        //     enmap.forEach( (val, key) => enmap.set(key, 'general', "partyChannel") );
+        // }
         
     }
 }

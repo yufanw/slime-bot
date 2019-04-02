@@ -16,7 +16,8 @@ bot.registry
         ['forge', 'Forge Commands'],
         ['configs', 'Config Commands'],
         ['team', 'Team Commands'],
-        ['misc', 'Misc Commands']
+        ['misc', 'Misc Commands'],
+        ['party', 'Party Commands']
     ])
     .registerCommandsIn((__dirname + '/commands'));
 
@@ -41,18 +42,34 @@ defaultSettings = {
     banquetMessage: "@everyone Banquet is starting in 15 minutes!",
     fortMessage: '@everyone Guild fort in 15 minutes! Good luck!',
     fortChannel: 'general',
-    checkInChannel: 'general',
-    team1: {
-        name: "Team 1",
-        team: []
+    teamChannel: 'general',
+    team: {
+        team1: {
+            name: "Team 1", 
+            team: []
+        },
+        team2: {
+            name: "Team 2",
+            team: [] 
+        },
+        team3: {
+            name: "Team 3",
+            team: []
+        }
     },
-    team2: {
-        name: "Team 2",
-        team: []
-    },
-    team3: {
-        name: "Team 3",
-        team: []
+    party: {
+        party1: {
+            name: 'Party 1',
+            team: []
+        },
+        party2: {
+            name: 'Party 2',
+            team: [] 
+        },
+        party3: {
+            name: 'Party 3',
+            team: []
+        }
     }
 }
 

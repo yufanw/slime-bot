@@ -23,9 +23,9 @@ class DeleteConf extends commando.Command{
        
     // deleting config from all guilds
 
-        // if (command === 'deleteconf') {
-        //     enmap.forEach( (val, key) => enmap.delete(key, "banquetReminder") );
-        // }
+        if (command === 'deleteconf') {
+            enmap.forEach( (val, key) => enmap.delete(key, "partyChannel") );
+        }
         
     }
 }
