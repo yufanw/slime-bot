@@ -31,35 +31,43 @@ class Party extends commando.Command{
             const [ prop ] = args;
 
     
-
+                // variable for getting party team from enmap
                 let party1 = enmap.get(message.guild.id, 'party.party1.team');
                 let party2 = enmap.get(message.guild.id, 'party.party2.team');
                 let party3 = enmap.get(message.guild.id, 'party.party3.team');
 
+                //variable for party team
                 let partyTeam1 = 'party.party1.team';
                 let partyTeam2 = 'party.party2.team';
                 let partyTeam3 = 'party.party3.team';
                 
+                //variable for party name
                 let partyName1 = 'party.party1.name';
                 let partyName2 = 'party.party2.name';
                 let partyName3 = 'party.party3.name';
 
+
+                //function to push member into party array
                 const partyPush = (member, party) => {
                     return enmap.push(message.guild.id, member, party);
                 }
 
+                //function to remove member from party
                 const partyRemove = (member, party) => {
                     return enmap.remove(message.guild.id, member, party);
                 }
 
+                //function to set party to whatever value
                 const partySet = (value, party) => {
                     return enmap.set(message.guild.id, value, party);
                 }
 
+                // if party spot is undefined, replace with " "
                 const partyList = (index, partyNumber) => {
                     return partyNumber[index] === undefined ? " " : partyNumber[index];
                 }
 
+                //discord embed function
                 const partyEmbed = (name, partyNumber) => {
                     return message.channel.send({embed: {
                         color: 3447003,
@@ -72,14 +80,17 @@ class Party extends commando.Command{
                     })
                 }
 
+                //full party variables
                 let fullparty1 = !party1.includes(undefined) && party1.length === 6;
                 let fullparty2 = !party2.includes(undefined) && party2.length === 6;
                 let fullparty3 = !party3.includes(undefined) && party3.length === 6;
 
+                //variables for if party includes member
                 let includesMember1 = party1.includes(member);
                 let includesMember2 = party2.includes(member);
                 let includesMember3 = party3.includes(member);
                
+                //variables for getting party names from enmap
                 let name1 = enmap.get(message.guild.id, 'party.party1.name');
                 let name2 = enmap.get(message.guild.id, 'party.party2.name');
                 let name3 = enmap.get(message.guild.id, 'party.party3.name');
@@ -900,10 +911,13 @@ class Party extends commando.Command{
 
                     const [ prop, value, ...secondValue ] = args;
 
+                    // if user is null, replace with ""
+
                     const realUser = (user) => {
                         return user === null ? "" : user;
                     }
 
+                    
                     if (value === 'party1') {
 
                         let user1 = message.guild.members.find(member => member.displayName == party1[0]);
@@ -921,7 +935,9 @@ class Party extends commando.Command{
                         return message.channel.send(`${realUser(user1)} ${realUser(user2)} ${realUser(user3)} ${realUser(user4)} ${realUser(user5)} ${realUser(user6)} : \n ${secondValue.join(" ")}`)
                     }
 
+                   
                     if (value === 'party2') {
+
                         let user1 = message.guild.members.find(member => member.displayName == party2[0]);
 
                         let user2 = message.guild.members.find(member => member.displayName == party2[1]);
@@ -938,6 +954,7 @@ class Party extends commando.Command{
                         return message.channel.send(`${realUser(user1)} ${realUser(user2)} ${realUser(user3)} ${realUser(user4)} ${realUser(user5)} ${realUser(user6)} : \n ${secondValue.join(" ")}`)
                     }
 
+                   
                     if (value === 'party3') {
                         
                         let user1 = message.guild.members.find(member => member.displayName == party3[0]);

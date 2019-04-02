@@ -34,35 +34,42 @@ class Team extends commando.Command{
 
             if (message.channel.name === teamChannel) {
 
-                
+                // variable for getting team team from enmap
                 let team1 = enmap.get(message.guild.id, 'team.team1.team');
                 let team2 = enmap.get(message.guild.id, 'team.team2.team');
                 let team3 = enmap.get(message.guild.id, 'team.team3.team');
 
+                // variable for team team
                 let teamTeam1 = 'team.team1.team';
                 let teamTeam2 = 'team.team2.team';
                 let teamTeam3 = 'team.team3.team';
                 
+                // variable for team name
                 let teamName1 = 'team.team1.name';
                 let teamName2 = 'team.team2.name';
                 let teamName3 = 'team.team3.name';
 
+                //function for pushing member into team array
                 const teamPush = (member, team) => {
                     return enmap.push(message.guild.id, member, team);
                 }
 
+                // function for removing member from team
                 const teamRemove = (member, team) => {
                     return enmap.remove(message.guild.id, member, team);
                 }
 
+                // function for setting team to whatever value
                 const teamSet = (value, team) => {
                     return enmap.set(message.guild.id, value, team);
                 }
 
+                // if spot is empty, replace undefined with " "
                 const teamList = (index, teamNumber) => {
                     return teamNumber[index] === undefined ? " " : teamNumber[index];
                 }
 
+                // discord embed function
                 const teamEmbed = (name, teamNumber) => {
                     return message.channel.send({embed: {
                         color: 3447003,
@@ -74,15 +81,17 @@ class Team extends commando.Command{
                     }
                     })
                 }
-
+                // variable for full teams
                 let fullteam1 = !team1.includes(undefined) && team1.length === 10;
                 let fullteam2 = !team2.includes(undefined) && team2.length === 10;
                 let fullteam3 = !team3.includes(undefined) && team3.length === 10;
 
+                //variable for if party includes member
                 let includesMember1 = team1.includes(member);
                 let includesMember2 = team2.includes(member);
                 let includesMember3 = team3.includes(member);
-               
+                
+                // variable for getting party name from enmap
                 let name1 = enmap.get(message.guild.id, 'team.team1.name');
                 let name2 = enmap.get(message.guild.id, 'team.team2.name');
                 let name3 = enmap.get(message.guild.id, 'team.team3.name');
