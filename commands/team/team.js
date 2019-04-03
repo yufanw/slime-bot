@@ -914,7 +914,7 @@ class Team extends commando.Command {
                     const [prop, value, ...secondValue] = args;
 
                     const realUser = (user) => {
-                        return user === null ? "" : user.displayName;
+                        return (user === null || user === undefined) ? "" : user.displayName;
                     }
 
                     if (value === 'team1') {
